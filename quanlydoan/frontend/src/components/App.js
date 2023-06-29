@@ -4,6 +4,7 @@ import LoginPage from "./HomePage";
 import ProjectManagerPage from "./ProjectManagerPage";
 import {BrowserRouter as Router, Routes, Route, Link, Redirect} from "react-router-dom"
 import SignUp from "./SignUp";
+import ResetAuthenticate from "./ResetAuthenticate";
 
 export default class App extends Component{
     
@@ -16,10 +17,10 @@ export default class App extends Component{
             <div>
                 <Router>
                 <Routes>
-                    <Route exact path="/sign_in" element= {<LoginPage/>}></Route>
+                    <Route exact path="/login" element= {<LoginPage/>}></Route>
                     <Route path="/sign_up" element= {<SignUp/>}></Route>
                     <Route path="/project_manager" element= {<ProjectManagerPage />} ></Route>
-                    
+                    <Route path="/reset_password" element={<ResetAuthenticate />} > </Route>
                 </Routes>
             </Router>
             </div>
