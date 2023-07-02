@@ -15,7 +15,6 @@ class AuthGroup(models.Model):
         managed = False
         db_table = 'auth_group'
 
-
 class AuthGroupPermissions(models.Model):
     id = models.BigAutoField(primary_key=True)
     group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
@@ -77,17 +76,49 @@ class AuthUserUserPermissions(models.Model):
         unique_together = (('user', 'permission'),)
 
 
-class Cuochop(models.Model):
-    id = models.CharField(primary_key=True, max_length=10)
-    idnhom = models.ForeignKey('Nhom', models.DO_NOTHING, db_column='IdNhom', blank=True, null=True)  # Field name made lowercase.
-    noteid = models.ForeignKey('Note', models.DO_NOTHING, db_column='NoteId', blank=True, null=True)  # Field name made lowercase.
-    meettime = models.DateTimeField(db_column='MeetTime', blank=True, null=True)  # Field name made lowercase.
-    isnoted = models.IntegerField(db_column='isNoted', blank=True, null=True)  # Field name made lowercase.
+class UserAccountManager(BaseUserManager):
+    def create_user(self, email, name, password = None):
+        if not email:
+            raise ValueError('User must have email address')
+        
+        email = self.normalize_email(email)
+        user = self.model(email = email, name = name)
+        
+        user.set_password(password)
+        user.save()
+        
+        return user
+    
+    def create_teacher(self, email, name, password = None ):
+        user = self.create_user(email, name, password)
+        user.is_teacher = False
+        
+        user.save()
+        
+        return user
+    
 
-    class Meta:
-        managed = False
-        db_table = 'cuochop'
-
+# base on the video about React-Django Rest Authenication
+class UserAccount(AbstractBaseUser, PermissionsMixin):
+    user_id = models.AutoField(primary_key=True)
+    email = models.EmailField( max_length=254, unique= True )
+    name = models.CharField(max_length=254)
+    is_active = models.BooleanField(default= True)
+    is_teacher = models.BooleanField(default=False)
+    
+    objects = UserAccountManager()
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
+    
+    def get_full_name(self):
+        return self.name
+    
+    def get_short_name(self):
+        return self.name 
+    
+    def __str__(self):
+        return self.email
 
 class DjangoAdminLog(models.Model):
     action_time = models.DateTimeField()
@@ -133,43 +164,17 @@ class DjangoSession(models.Model):
         managed = False
         db_table = 'django_session'
 
-
 class Giangvien(models.Model):
     magv = models.CharField(db_column='MaGV', primary_key=True, max_length=5)  # Field name made lowercase.
-    hotengb = models.CharField(db_column='HoTenGB', max_length=40, db_collation='utf8mb3_general_ci', blank=True, null=True)  # Field name made lowercase.
-    vien = models.CharField(db_column='Vien', max_length=100, db_collation='utf8mb3_general_ci', blank=True, null=True)  # Field name made lowercase.
-    email = models.CharField(db_column='Email', max_length=20, db_collation='utf8mb3_general_ci', blank=True, null=True)  # Field name made lowercase.
+    hotengb = models.CharField(db_column='HoTenGB', max_length=40, blank=True, null=True)  # Field name made lowercase.
+    vien = models.CharField(db_column='Vien', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    email = models.CharField(db_column='Email', max_length=20, blank=True, null=True)  # Field name made lowercase.
+    user = models.ForeignKey("UserAccount", models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'giangvien'
-
-
-class Mon(models.Model):
-    mamon = models.OneToOneField(Giangvien, models.DO_NOTHING, db_column='MaMon', primary_key=True)  # Field name made lowercase. The composite primary key (MaMon, MaGV) found, that is not supported. The first column is selected.
-    magv = models.CharField(db_column='MaGV', max_length=5)  # Field name made lowercase.
-    tenmon = models.CharField(db_column='TenMon', max_length=20, db_collation='utf8mb3_general_ci', blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'mon'
-        unique_together = (('mamon', 'magv'),)
-
-
-class Nhom(models.Model):
-    idnhom = models.CharField(db_column='IdNhom', primary_key=True, max_length=5)  # Field name made lowercase.
-    mamon = models.ForeignKey(Mon, models.DO_NOTHING, db_column='MaMon', blank=True, null=True)  # Field name made lowercase.
-    magv = models.ForeignKey(Giangvien, models.DO_NOTHING, db_column='MaGV', blank=True, null=True)  # Field name made lowercase.
-    term = models.PositiveIntegerField(db_column='Term', blank=True, null=True)  # Field name made lowercase.
-    tennhom = models.CharField(db_column='TenNhom', max_length=10, db_collation='utf8mb3_general_ci', blank=True, null=True)  # Field name made lowercase.
-    tendetai = models.CharField(db_column='TenDetai', max_length=100, db_collation='utf8mb3_general_ci', blank=True, null=True)  # Field name made lowercase.
-    projectstatus = models.IntegerField(db_column='ProjectStatus', blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'nhom'
-
-
+        
 class Note(models.Model):
     noteid = models.CharField(db_column='NoteId', primary_key=True, max_length=10)  # Field name made lowercase.
     note = models.CharField(db_column='Note', max_length=100, blank=True, null=True)  # Field name made lowercase.
@@ -178,8 +183,30 @@ class Note(models.Model):
     class Meta:
         managed = False
         db_table = 'note'
+        
+class Mon(models.Model):
+    mamon = models.CharField(db_column='MaMon', primary_key=True, max_length=6)  # Field name made lowercase. The composite primary key (MaMon, MaGV) found, that is not supported. The first column is selected.
+    magv = models.ForeignKey(Giangvien, models.DO_NOTHING, db_column='MaGV')  # Field name made lowercase.
+    tenmon = models.CharField(db_column='TenMon', max_length=20, blank=True, null=True)  # Field name made lowercase.
 
+    class Meta:
+        managed = False
+        db_table = 'mon'
+        unique_together = (('mamon', 'magv'),)
+        
+class Nhom(models.Model):
+    idnhom = models.CharField(db_column='IdNhom', primary_key=True, max_length=5)  # Field name made lowercase.
+    mamon = models.ForeignKey(Mon, models.DO_NOTHING, db_column='MaMon', blank=True, null=True)  # Field name made lowercase.
+    magv = models.ForeignKey(Giangvien, models.DO_NOTHING, db_column='MaGV', blank=True, null=True)  # Field name made lowercase.
+    term = models.PositiveIntegerField(db_column='Term', blank=True, null=True)  # Field name made lowercase.
+    tennhom = models.CharField(db_column='TenNhom', max_length=10, blank=True, null=True)  # Field name made lowercase.
+    tendetai = models.CharField(db_column='TenDetai', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    projectstatus = models.IntegerField(db_column='ProjectStatus', blank=True, null=True)  # Field name made lowercase.
 
+    class Meta:
+        managed = False
+        db_table = 'nhom'
+        
 class Sinhvien(models.Model):
     masv = models.CharField(db_column='MaSV', primary_key=True, max_length=6)  # Field name made lowercase.
     hoten = models.CharField(db_column='HoTen', max_length=40, blank=True, null=True)  # Field name made lowercase.
@@ -188,40 +215,19 @@ class Sinhvien(models.Model):
     sdt = models.CharField(db_column='SDT', max_length=10, blank=True, null=True)  # Field name made lowercase.
     nganh = models.CharField(db_column='Nganh', max_length=30, blank=True, null=True)  # Field name made lowercase.
     emailsv = models.CharField(db_column='EmailSV', max_length=20, blank=True, null=True)  # Field name made lowercase.
+    user = models.ForeignKey('UserAccount', models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'sinhvien'
 
+class Cuochop(models.Model):
+    id = models.CharField(primary_key=True, max_length=10)
+    idnhom = models.ForeignKey('Nhom', models.DO_NOTHING, db_column='IdNhom', blank=True, null=True)  # Field name made lowercase.
+    noteid = models.ForeignKey('Note', models.DO_NOTHING, db_column='NoteId', blank=True, null=True)  # Field name made lowercase.
+    meettime = models.DateTimeField(db_column='MeetTime', blank=True, null=True)  # Field name made lowercase.
+    isnoted = models.IntegerField(db_column='isNoted', blank=True, null=True)  # Field name made lowercase.
 
-# base on the video about React-Django Rest Authenication
-class UserAccount(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField( max_length=254, unique= True )
-    name = models.CharField(max_length=254)
-    is_active = models.BooleanField(default= True)
-    is_teacher = models.BooleanField(default=False)
-    
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']
-    
-    def get_full_name(self):
-        return self.name
-    
-    def get_short_name(self):
-        return self.name 
-    
-    def __str__(self):
-        return self.email
-    
-class UserAccountManager(BaseUserManager):
-    def create_user(self, email, name, password = None):
-        if not email:
-            raise ValueError('User must have email address')
-        
-        email = self.normalize_email(email)
-        user = self.model(email = email, name = name)
-        
-        user.set_password(password)
-        user.save()
-        
-        return user
+    class Meta:
+        managed = False
+        db_table = 'cuochop'

@@ -21,6 +21,8 @@ export default function SignUp() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
+      maSV : data.get("maSV"),
+      fullName : data.get("fullName"),
       email: data.get('email'),
       password: data.get('password'),
     });
