@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import pymysql
 import os
+from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -40,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'rest_framework',
-    'djoser',
     'frontend.apps.FrontendConfig'
 ]
 
@@ -112,22 +112,27 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Source: https://djoser.readthedocs.io/en/latest/authentication_backends.html
 # Add rest_framework_simplejwt.authentication.JWTAuthentication to 
 # Django REST Framework authentication strategies tuple:
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES':{
-        'rest_framework.permissions.IsAuthenticated'
-    },
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    ],
 }
 
 # Configure django-rest-framework-simplejwt to use the Authorization: JWT
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
+    'BLACKLIST_AFTER_ROTATION': False,
+    'ROTATE_REFRESH_TOKENS': False,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken', )
+
 }
 
 # email set up for django
@@ -161,26 +166,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'frontend\static')
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-# Setup Djoser setting for Djoser API
-# Src: https://djoser.readthedocs.io/en/latest/settings.html#
-
-DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'USER_CREATE_PASSWORD_RETYPE' : True,
-    'USERNAME_CHANGED_EMAIL_CONFIRMATION' : True,
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION' : True,
-    'SEND_CONFIRMATION_EMAIL': True,
-    'SET_PASSWORD_RETYPE' : True,
-    'PASSWORD_RESET_CONFIRM_URL' : 'password/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': 'activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL': True,
-    'SERIALIZERS' : {
-        'user_create' : 'api.serializers.UserCreateSerializer',
-        'user' : 'api.serializers.UserCreateSerializer',
-        'user_delete' : 'api.serializers.UserDeleteSerializer',
-    }
-}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

@@ -77,21 +77,31 @@ class AuthUserUserPermissions(models.Model):
 
 
 class UserAccountManager(BaseUserManager):
-    def create_user(self, email, name, password = None):
+    def create_user(self, email, fullName, password = None):
         if not email:
             raise ValueError('User must have email address')
         
         email = self.normalize_email(email)
-        user = self.model(email = email, name = name)
+        user = self.model(email = email, fullName = fullName)
         
         user.set_password(password)
         user.save()
         
         return user
     
-    def create_teacher(self, email, name, password = None ):
-        user = self.create_user(email, name, password)
-        user.is_teacher = False
+    def create_teacher(self, email, fullName, password = None ):
+        user = self.create_user(email, fullName, password)
+        user.is_teacher = True
+        
+        user.save()
+        
+        return user
+    def create_superuser(self, email, fullName, password = None ):
+        user = self.create_user(email, fullName, password)
+        
+        user.is_superuser = True
+        user.is_staff = True
+        user.is_teacher = True
         
         user.save()
         
@@ -100,22 +110,22 @@ class UserAccountManager(BaseUserManager):
 
 # base on the video about React-Django Rest Authenication
 class UserAccount(AbstractBaseUser, PermissionsMixin):
-    user_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     email = models.EmailField( max_length=254, unique= True )
-    name = models.CharField(max_length=254)
+    fullName = models.CharField(max_length=254)
     is_active = models.BooleanField(default= True)
     is_teacher = models.BooleanField(default=False)
     
     objects = UserAccountManager()
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']
+    REQUIRED_FIELDS = ['fullName']
     
     def get_full_name(self):
-        return self.name
+        return self.fullName
     
     def get_short_name(self):
-        return self.name 
+        return self.fullName 
     
     def __str__(self):
         return self.email
@@ -169,10 +179,10 @@ class Giangvien(models.Model):
     hotengb = models.CharField(db_column='HoTenGB', max_length=40, blank=True, null=True)  # Field name made lowercase.
     vien = models.CharField(db_column='Vien', max_length=100, blank=True, null=True)  # Field name made lowercase.
     email = models.CharField(db_column='Email', max_length=20, blank=True, null=True)  # Field name made lowercase.
-    user = models.ForeignKey("UserAccount", models.DO_NOTHING, blank=True, null=True)
+    user = models.ForeignKey("UserAccount", models.DO_NOTHING, db_column="id", blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'giangvien'
         
 class Note(models.Model):
@@ -215,10 +225,10 @@ class Sinhvien(models.Model):
     sdt = models.CharField(db_column='SDT', max_length=10, blank=True, null=True)  # Field name made lowercase.
     nganh = models.CharField(db_column='Nganh', max_length=30, blank=True, null=True)  # Field name made lowercase.
     emailsv = models.CharField(db_column='EmailSV', max_length=20, blank=True, null=True)  # Field name made lowercase.
-    user = models.ForeignKey('UserAccount', models.DO_NOTHING, blank=True, null=True)
+    user = models.ForeignKey('UserAccount', models.DO_NOTHING, db_column="id", blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'sinhvien'
 
 class Cuochop(models.Model):
