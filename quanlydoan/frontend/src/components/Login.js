@@ -27,6 +27,18 @@ export default class LoginPage extends Component {
             event.preventDefault();
             const data = new FormData(event.currentTarget);
             
+            const requestOption = {
+                method: 'POST',
+                headers:{'Content-Type': 'application/json'},
+                body:JSON.stringify({
+                    email: data.get('email'),
+                    password:data.get('password'),
+                }),
+            };
+
+            fetch('/api/token/', requestOption).then((respond) =>
+                respond.json()
+            ).then((data) => console.log(data));
           };
         
         return (

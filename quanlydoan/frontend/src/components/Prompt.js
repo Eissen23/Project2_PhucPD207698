@@ -16,46 +16,30 @@ export default class PromptPage extends Component {
 
     render() {
         return(
-        <Grid container component="main" sx={{  direction:"row"    }}>
+        <Grid container spacing={2} component="main" justifyContent="flex-end"  sx={{  direction:"row",  }}>
             <CssBaseline />
             <Grid
                 item
-                xs={12}
-                sm={8}
-                md={5}
                 elevation={6}
+                p={2}
                 sx={{display: "flex", flexDirection: "row"}}
             >
                 <Box 
                 sx={{
                     p: 2,
                     display: "flex",
+                    justifyContent: 'space-evenly',
                     flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: 'space-between',
+                    alignItems: 'flex-end',
                 }}>
-                    <Typography component="h4" variant="h5">
-                        Đã có tài khoản?
-                    </Typography>
-                    <Button   variant="contained" sx={{ mt: 3, mb: 2 }} href="/login">
+                    <Button   variant="contained" sx={{p:2}} href="/login">
                         Đăng nhập
                     </Button>
-                </Box>
-
-                <Box sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: 'space-between',
-                }}>
-                    <Typography component="h4" variant="h5">
-                        Chưa có tài khoản?
-                    </Typography>
-                    <Button   variant="contained" sx={{ mt: 3, mb: 2 }} href="/sign_up">
+                    <Button   variant="contained" sx={{p:2}} href="/sign_up">
                         Đăng ký
                     </Button>
                 </Box>
+                
             </Grid>
         </Grid>
         );

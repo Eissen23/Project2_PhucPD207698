@@ -10,6 +10,7 @@ import traceback
 User = get_user_model()
 
 # Create your views here.
+# TODO: set up create for both GV and Sinh vien
 
 
 class SignupvView(APIView):
@@ -27,11 +28,6 @@ class SignupvView(APIView):
             
             # TODO: the logic in the signup
             is_teacher = data['is_teacher']
-            
-            if is_teacher == 'True':
-                is_teacher = True
-            else: 
-                is_teacher = False    
             
             
             if password ==  re_password:
@@ -89,3 +85,4 @@ class RetrieveUserView(APIView):
                 {'error': 'Something went wrong'},
                 status= status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            

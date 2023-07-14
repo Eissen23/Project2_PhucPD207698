@@ -1,4 +1,4 @@
-import * as React from 'react';
+import  * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -16,18 +16,37 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const defaultTheme = createTheme();
 
-export default function SignUp() {
+export default function SignUp(){
+
+  
+  // for check logic
+  const [isTeacher, setIsTeacher] = React.useState(false)
+
+  const handleChange = (event) =>{
+    setIsTeacher(event.target.checked)
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      maSV : data.get("maSV"),
-      fullName : data.get("fullName"),
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
 
+    const requestOption = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify({
+            fullName: data.get('fullName'),
+            email: data.get('email'),
+            password: data.get('password'),
+            re_password: data.get('re_password'),
+            is_teacher: isTeacher, 
+        }),
+    };
+
+    fetch('/auth/user/signup', requestOption).then((respond) => 
+    respond.json()
+    ).then((data) =>  console.log(data));
+  };
+  
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
@@ -43,7 +62,7 @@ export default function SignUp() {
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           </Avatar>
           <Typography component="h1" variant="h5">
-            Đăng ký
+            Đăng ký tài khoản
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
@@ -58,42 +77,7 @@ export default function SignUp() {
                   autoFocus
                 />
               </Grid>
-              <Grid item xs={12} sm ={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="maSV"
-                  label="MSSV"
-                  name="maSV"
-                />
-              </Grid>
-              <Grid item xs={12} sm ={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="maLop"
-                  label="Mã lớp"
-                  name="maLop"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="sdt"
-                  label="Số điện thoại"
-                  name="sdt"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="nganh"
-                  label="Ngành"
-                  name="Nganh"
-                />
-              </Grid>
+              
               <Grid item xs={12}>
                 <TextField
                   required
@@ -128,7 +112,7 @@ export default function SignUp() {
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
+                  control={<Checkbox value="isTeacher"  color="primary" onChange={handleChange}/>}
                   label="Đây là tài khoản cho giảng viên"
                 />
               </Grid>
@@ -136,6 +120,7 @@ export default function SignUp() {
             <Button
               type="submit"
               fullWidth
+              color='secondary'
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >

@@ -11,8 +11,6 @@ import {
 } from "react-router-dom";
 import SignUp from "./SignUp";
 import ResetAuthenticate from "./ResetAuthenticate";
-import ResetConfirm from "./ResetConfirm";
-import Activate from "./Activate";
 import PromptPage from "./Prompt";
 
 export default class App extends Component {
@@ -44,14 +42,6 @@ export default class App extends Component {
                         >
                             {" "}
                         </Route>
-                        <Route
-                            path="/password/reset/confirm/:uid/:token"
-                            element={<ResetConfirm />}
-                        ></Route>
-                        <Route
-                            path="/activate/:uid/:token"
-                            element={<Activate />}
-                        ></Route>
                     </Routes>
                 </Router>
             </div>
