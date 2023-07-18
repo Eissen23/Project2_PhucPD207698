@@ -143,7 +143,6 @@ class DjangoAdminLog(models.Model):
         managed = False
         db_table = 'django_admin_log'
 
-
 class DjangoContentType(models.Model):
     app_label = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
@@ -152,7 +151,6 @@ class DjangoContentType(models.Model):
         managed = False
         db_table = 'django_content_type'
         unique_together = (('app_label', 'model'),)
-
 
 class DjangoMigrations(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -163,7 +161,6 @@ class DjangoMigrations(models.Model):
     class Meta:
         managed = False
         db_table = 'django_migrations'
-
 
 class DjangoSession(models.Model):
     session_key = models.CharField(primary_key=True, max_length=40)
@@ -179,7 +176,7 @@ class Giangvien(models.Model):
     hotengb = models.CharField(db_column='HoTenGB', max_length=40, blank=True, null=True)  # Field name made lowercase.
     vien = models.CharField(db_column='Vien', max_length=100, blank=True, null=True)  # Field name made lowercase.
     email = models.CharField(db_column='Email', max_length=20, blank=True, null=True)  # Field name made lowercase.
-    user = models.ForeignKey("UserAccount", models.DO_NOTHING, db_column="id", blank=True, null=True)
+    user_id = models.ForeignKey("UserAccount", models.DO_NOTHING, db_column='user_id', blank=True, null=True)
 
     class Meta:
         managed = True
@@ -220,12 +217,12 @@ class Nhom(models.Model):
 class Sinhvien(models.Model):
     masv = models.CharField(db_column='MaSV', primary_key=True, max_length=6)  # Field name made lowercase.
     hoten = models.CharField(db_column='HoTen', max_length=40, blank=True, null=True)  # Field name made lowercase.
-    idnhom = models.ForeignKey(Nhom, models.DO_NOTHING, db_column='IdNhom', blank=True, null=True)  # Field name made lowercase.
+    idnhom = models.ForeignKey("Nhom", models.DO_NOTHING, db_column='IdNhom', blank=True, null=True)  # Field name made lowercase.
     malop = models.CharField(db_column='MaLop', max_length=10, blank=True, null=True)  # Field name made lowercase.
     sdt = models.CharField(db_column='SDT', max_length=10, blank=True, null=True)  # Field name made lowercase.
     nganh = models.CharField(db_column='Nganh', max_length=30, blank=True, null=True)  # Field name made lowercase.
     emailsv = models.CharField(db_column='EmailSV', max_length=20, blank=True, null=True)  # Field name made lowercase.
-    user = models.ForeignKey('UserAccount', models.DO_NOTHING, db_column="id", blank=True, null=True)
+    user_id = models.ForeignKey("UserAccount", models.DO_NOTHING, db_column="user_id", blank=True, null=True)
 
     class Meta:
         managed = True

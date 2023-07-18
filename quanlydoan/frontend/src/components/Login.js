@@ -10,37 +10,31 @@ import {
     Box,
     Grid,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 //Todo: Fix backgroud and re theme the Present page
 const defaultTheme = createTheme();
 
-
-
-export default class LoginPage extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        const handleSubmit = (event) => {
-            event.preventDefault();
-            const data = new FormData(event.currentTarget);
-            
-            const requestOption = {
-                method: 'POST',
-                headers:{'Content-Type': 'application/json'},
-                body:JSON.stringify({
-                    email: data.get('email'),
-                    password:data.get('password'),
-                }),
-            };
-
-            fetch('/api/token/', requestOption).then((respond) =>
-                respond.json()
-            ).then((data) => console.log(data));
-          };
+export default function LoginPage(){
         
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        
+        const requestOption = {
+            method: 'POST',
+            headers:{'Content-Type': 'application/json'},
+            body:JSON.stringify({
+                email: data.get('email'),
+                password:data.get('password'),
+            }),
+        };
+
+        fetch('/api/token/', requestOption).then((respond) =>
+            respond.json()
+        ).then((data) => console.log(data));
+      };
+
         return (
             <ThemeProvider theme={defaultTheme}>
                 <Grid container component="main" sx={{ height: "100vh" }}>
@@ -95,5 +89,4 @@ export default class LoginPage extends Component {
                 </Grid>
             </ThemeProvider >
         );
-    }
 }

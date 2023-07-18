@@ -6,48 +6,27 @@ import {
     BrowserRouter as Router,
     Routes,
     Route,
-    Link,
-    Redirect,
 } from "react-router-dom";
 import SignUp from "./SignUp";
 import ResetAuthenticate from "./ResetAuthenticate";
 import PromptPage from "./Prompt";
-import { createTheme, ThemeProvider, StyledEngineProvider  } from '@mui/material/styles';
-import { red } from '@mui/material/colors';
+
+
+
 
 export default class App extends Component {
     constructor(props) {
         super(props);
-        const hust = createTheme({
-            palette: {
-                primary: {
-                    main: red[500],
-                },
-                secondary: {
-                    main: "#d9d9d9",
-                },
-                background: {
-                    default: "#aa1d2b",
-                },
-            },
-        });
-        this.appTheme = hust;
     }
-
-
     render() {
-        
-
         return (
             <div>
-                <StrictMode>
-                <ThemeProvider theme={this.appTheme}>
-                    <StyledEngineProvider injectFirst>
-                        
+                <StrictMode>                        
                             <Router>
                                 <Routes>
                                     {/* Take care of the urls in frontend.urls.py after making change */}
                                     <Route
+                                        
                                         path="/"
                                         element={<PromptPage />}
                                     ></Route>
@@ -68,12 +47,10 @@ export default class App extends Component {
                                         path="/reset-password"
                                         element={<ResetAuthenticate />}
                                     >
-                                        {" "}
+
                                     </Route>
                                 </Routes>
                             </Router>
-                    </StyledEngineProvider>
-                </ThemeProvider>
                 </StrictMode>
             </div>
         );
@@ -81,7 +58,6 @@ export default class App extends Component {
 }
 
 const appDiv = document.getElementById("app");
-// take the component render it inside index.html
-// render(<App />, appDiv); #alternative
+
 const root = createRoot(appDiv);
 root.render(<App />);

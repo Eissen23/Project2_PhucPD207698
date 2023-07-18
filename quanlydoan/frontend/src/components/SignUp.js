@@ -10,14 +10,11 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
-const defaultTheme = createTheme();
 
 export default function SignUp(){
-
   
   // for check logic
   const [isTeacher, setIsTeacher] = React.useState(false)
@@ -48,7 +45,6 @@ export default function SignUp(){
   };
   
   return (
-    <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -86,6 +82,44 @@ export default function SignUp(){
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="code"
+                  required
+                  fullWidth
+                  id="code"
+                  label="MSSV/Mã GV"
+                  autoFocus
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  id="malop"
+                  label="Mã Lớp (sinh viên)"
+                  name="malop"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="domain"
+                  label="Ngành/Khoa"
+                  id="domain"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="phone"
+                  label="Số điện thoại (sinh viên)"
+                  id="phone"
                 />
               </Grid>
               <Grid item xs={12}>
@@ -136,6 +170,5 @@ export default function SignUp(){
           </Box>
         </Box>
       </Container>
-    </ThemeProvider>
   );
 }
