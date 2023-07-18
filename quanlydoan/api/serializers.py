@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id','fullName', 'email', 'is_teacher', )
 
-class CreateSinhvienSerializer (serializers.ModelSerializer):
+class SinhvienSerializer (serializers.ModelSerializer):
     class Meta:
         model = Sinhvien
         fields = ('masv', 'hoten', 'malop', 'sdt','nganh', ) 
@@ -18,7 +18,7 @@ class CreateSinhvienSerializer (serializers.ModelSerializer):
 class GiangvienSerializer (serializers.ModelSerializer):
     class Meta: 
         model = Giangvien
-        fields = ('magv', 'hotengb', 'vien', 'email', 'user_id', )
+        fields = ('magv', 'hotengb', 'vien', 'email',  )
         
 class NhomSerializer (serializers.ModelSerializer):
     class Meta:

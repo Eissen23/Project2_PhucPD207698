@@ -36,6 +36,10 @@ export default function SignUp(){
             password: data.get('password'),
             re_password: data.get('re_password'),
             is_teacher: isTeacher, 
+            code: data.get('code'),
+            malop: data.get('malop'),
+            sdt: data.get('phone'),
+            domain: data.get('domain')
         }),
     };
 
