@@ -172,10 +172,10 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 class Giangvien(models.Model):
-    magv = models.CharField(db_column='MaGV', primary_key=True, max_length=5)  # Field name made lowercase.
+    magv = models.CharField(db_column='MaGV', primary_key=True, max_length=10)  # Field name made lowercase.
     hotengb = models.CharField(db_column='HoTenGB', max_length=40, blank=True, null=True)  # Field name made lowercase.
     vien = models.CharField(db_column='Vien', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    email = models.CharField(db_column='Email', max_length=20, blank=True, null=True)  # Field name made lowercase.
+    email = models.CharField(db_column='Email', max_length=50, blank=True, null=True)  # Field name made lowercase.
     user_id = models.ForeignKey("UserAccount", models.DO_NOTHING, db_column='user_id', blank=True, null=True)
 
     class Meta:
@@ -192,7 +192,7 @@ class Note(models.Model):
         db_table = 'note'
         
 class Mon(models.Model):
-    mamon = models.CharField(db_column='MaMon', primary_key=True, max_length=6)  # Field name made lowercase. The composite primary key (MaMon, MaGV) found, that is not supported. The first column is selected.
+    mamon = models.CharField(db_column='MaMon', primary_key=True, max_length=10)  # Field name made lowercase. The composite primary key (MaMon, MaGV) found, that is not supported. The first column is selected.
     magv = models.ForeignKey(Giangvien, models.DO_NOTHING, db_column='MaGV')  # Field name made lowercase.
     tenmon = models.CharField(db_column='TenMon', max_length=20, blank=True, null=True)  # Field name made lowercase.
 
@@ -215,13 +215,13 @@ class Nhom(models.Model):
         db_table = 'nhom'
         
 class Sinhvien(models.Model):
-    masv = models.CharField(db_column='MaSV', primary_key=True, max_length=6)  # Field name made lowercase.
+    masv = models.CharField(db_column='MaSV', primary_key=True, max_length=8)  # Field name made lowercase.
     hoten = models.CharField(db_column='HoTen', max_length=40, blank=True, null=True)  # Field name made lowercase.
     idnhom = models.ForeignKey("Nhom", models.DO_NOTHING, db_column='IdNhom', blank=True, null=True)  # Field name made lowercase.
-    malop = models.CharField(db_column='MaLop', max_length=10, blank=True, null=True)  # Field name made lowercase.
+    malop = models.CharField(db_column='MaLop', max_length=20, blank=True, null=True)  # Field name made lowercase.
     sdt = models.CharField(db_column='SDT', max_length=10, blank=True, null=True)  # Field name made lowercase.
-    nganh = models.CharField(db_column='Nganh', max_length=30, blank=True, null=True)  # Field name made lowercase.
-    emailsv = models.CharField(db_column='EmailSV', max_length=20, blank=True, null=True)  # Field name made lowercase.
+    nganh = models.CharField(db_column='Nganh', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    emailsv = models.CharField(db_column='EmailSV', max_length=50, blank=True, null=True)  # Field name made lowercase.
     user_id = models.ForeignKey("UserAccount", models.DO_NOTHING, db_column="user_id", blank=True, null=True)
 
     class Meta:

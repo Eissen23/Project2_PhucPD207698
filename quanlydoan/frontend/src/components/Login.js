@@ -1,4 +1,5 @@
-import React, { Component } from "react";
+import React, { Component, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Button,
     CssBaseline,
@@ -12,28 +13,37 @@ import {
     Typography,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import AuthContext from "../context/AuthContext";
 //Todo: Fix backgroud and re theme the Present page
 const defaultTheme = createTheme();
 
 export default function LoginPage(){
         
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        
-        const requestOption = {
-            method: 'POST',
-            headers:{'Content-Type': 'application/json'},
-            body:JSON.stringify({
-                email: data.get('email'),
-                password:data.get('password'),
-            }),
-        };
 
-        fetch('/api/token/', requestOption).then((respond) =>
-            respond.json()
-        ).then((data) => console.log(data));
-      };
+    //for navigation and api calling
+    const navigate = useNavigate();
+
+    //original submit 
+    // const handleSubmit = (event) => {
+    //     event.preventDefault();
+    //     const data = new FormData(event.currentTarget);
+        
+    //     const requestOption = {
+    //         method: 'POST',
+    //         headers:{'Content-Type': 'application/json'},
+    //         body:JSON.stringify({
+    //             email: data.get('email'),
+    //             password:data.get('password'),
+    //         }),
+    //     };
+
+    //     fetch('/api/token/', requestOption).then((respond) =>
+    //         respond.json()
+    //     ).then((data) => navigate("/project_manager/" + data['access'].toString()));
+    //   };
+
+      // new summit
+      let { loginUser } = useContext(AuthContext);
 
         return (
             <ThemeProvider theme={defaultTheme}>
@@ -59,7 +69,7 @@ export default function LoginPage(){
                             <Typography component="h1" variant="h5">
                                 Đăng nhập
                             </Typography>
-                            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+                            <Box component="form" noValidate onSubmit={loginUser} sx={{ mt: 1 }}>
                                 <TextField margin="normal" required fullWidth id="email" label="Email" name="email" autoComplete="email" autoFocus/>
                                 <TextField margin="normal" required fullWidth name="password" label="Mật khẩu" type="password" id="password" autoComplete="current-password"/>
                                 <FormControlLabel

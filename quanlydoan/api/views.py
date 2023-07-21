@@ -93,7 +93,7 @@ class SignupView(APIView):
                 status= status.HTTP_500_INTERNAL_SERVER_ERROR
             )
             
-            
+     
 class RetrieveUserView(APIView):
     def get(self, request, format=None):
         try:
@@ -110,7 +110,10 @@ class RetrieveUserView(APIView):
                 detail = GiangvienSerializer(user_detail)
             
             return Response(
-                {'user': user.data,'detail': detail.data},
+                {
+                    'user': user.data,
+                    'detail': detail.data
+                },
                 status=status.HTTP_200_OK
             )
             

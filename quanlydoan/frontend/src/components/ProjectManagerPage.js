@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useContext } from "react";
 import {
     Avatar,
     AppBar,
@@ -11,12 +11,13 @@ import {
     Container,
     Button,
 } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import AuthContext from "../context/AuthContext";
 const sections = ["Trang chủ", "Nhóm đồ án", "Dề tài", "Lịch", "Tiến độ"];
 
 export default function ProjectManagerPage() {
-    const { id } = useParams();
+    
     const hust = createTheme({
         palette: {
             primary: {
@@ -26,6 +27,41 @@ export default function ProjectManagerPage() {
                 black: "#0000",
             },
         },
+    });
+
+    let user = {
+        fullName: null,
+        email: null,
+        code: null,
+        malop: null,
+        sdt: null, 
+        domain: null,
+        is_teacher: false,
+    }
+    
+    let { authToken } = useContext(AuthContext);    
+    
+    const requestOption = {
+        method: 'GET',
+        headers: {'Authorization' : 'Bearer ' + authToken["access"]},
+    };
+
+    fetch('/auth/user/me', requestOption).then((respond) =>
+        respond.json()
+    ).then((data) => {
+        user.fullName =  data.user.fullName;
+        user.email = data.user.email;
+        is_teacher = data.user.is_teacher;
+        
+        if(!is_teacher){
+            code = data.detail.masv;
+            malop = data.detail.malop;
+            sdt = data.detail.sdt;
+            domain = data.detail.nganh;
+        }else{
+             code = data.detail.magv;
+             domain = data.detail.vien;
+        }
     });
 
     return (
@@ -63,7 +99,7 @@ export default function ProjectManagerPage() {
                                 columnGap: 3,
                             }}
                         >
-                            <Typography>{id}</Typography>
+                            <Typography></Typography>
                             <Avatar align="right"></Avatar>
                         </Box>
                         <Typography variant="subtitle1" align="right">
@@ -87,6 +123,8 @@ export default function ProjectManagerPage() {
                     </Box>
                 </Container>
             </AppBar>
+
+            {/* Set up tabular and calendar just like the practice*/}
         </ThemeProvider>
     );
 }

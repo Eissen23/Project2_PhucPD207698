@@ -83,7 +83,7 @@ export default function SignUp(){
                   required
                   fullWidth
                   id="email"
-                  label="Email Address"
+                  label="Email"
                   name="email"
                   autoComplete="email"
                 />
@@ -131,7 +131,7 @@ export default function SignUp(){
                   required
                   fullWidth
                   name="password"
-                  label="Password"
+                  label="Mật khẩu"
                   type="password"
                   id="password"
                   autoComplete="new-password"
@@ -142,7 +142,7 @@ export default function SignUp(){
                   required
                   fullWidth
                   name="re_password"
-                  label="Repeat Password"
+                  label="Nhập lại mật khẩu"
                   type="password"
                   id="re_password"
                   autoComplete="new-password"
