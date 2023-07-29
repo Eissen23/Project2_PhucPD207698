@@ -8,11 +8,12 @@ export default AuthContext;
 export const AuthProvider = () => {
     const navigate = useNavigate();
 
-    let [authToken, setToken] = useState(
+    let [authToken, setToken] = useState( 
         localStorage.getItem("authToken")
             ? JSON.parse(localStorage.getItem("authToken"))
             : null
     );
+
 
     let loginUser = async (event) => {
         event.preventDefault();

@@ -1,4 +1,4 @@
-import React, { Component, useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
     Avatar,
     AppBar,
@@ -11,13 +11,11 @@ import {
     Container,
     Button,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import AuthContext from "../context/AuthContext";
 const sections = ["Trang chủ", "Nhóm đồ án", "Dề tài", "Lịch", "Tiến độ"];
 
 export default function ProjectManagerPage() {
-    
     const hust = createTheme({
         palette: {
             primary: {
@@ -29,102 +27,126 @@ export default function ProjectManagerPage() {
         },
     });
 
-    let user = {
-        fullName: null,
-        email: null,
-        code: null,
-        malop: null,
-        sdt: null, 
-        domain: null,
-        is_teacher: false,
-    }
-    
-    let { authToken } = useContext(AuthContext);    
-    
-    const requestOption = {
-        method: 'GET',
-        headers: {'Authorization' : 'Bearer ' + authToken["access"]},
-    };
+    let [loading, setLoad] = useState(true);
 
-    fetch('/auth/user/me', requestOption).then((respond) =>
-        respond.json()
-    ).then((data) => {
-        user.fullName =  data.user.fullName;
-        user.email = data.user.email;
-        is_teacher = data.user.is_teacher;
-        
-        if(!is_teacher){
-            code = data.detail.masv;
-            malop = data.detail.malop;
-            sdt = data.detail.sdt;
-            domain = data.detail.nganh;
-        }else{
-             code = data.detail.magv;
-             domain = data.detail.vien;
-        }
+    let { authToken } = useContext(AuthContext);
+
+    let [user, setUser] = useState({
+        fullName: "",
+        email: "",
+        is_teacher: false,
+        code: "",
+        malop: "",
+        sdt: "",
+        domain: "",
     });
 
-    return (
-        <ThemeProvider theme={hust}>
-            <AppBar align="left" elevation={5}>
-                <CssBaseline />
-                <Toolbar>
-                    <img
-                        width="55pt"
-                        height="82pt"
-                        src={
-                            "https://storage.googleapis.com/hust-files/5807675312963584/images/hust-logo-official_.3m.jpeg"
-                        }
-                        alt="hust_logo"
-                    />
-                    <Container align="left">
-                        <Typography variant="h5">
-                            Hệ thống quản lý bộ môn đồ án
-                        </Typography>
-                        <Typography variant="subtitle1">
-                            ĐẠI HỌC BÁCH KHOA HÀ NỘI
-                        </Typography>
-                    </Container>
+    const requestOption = {
+        method: "GET",
+        headers: { Authorization: "Bearer " + authToken["access"] },
+    };
+
+    // to stop fetch every rendering
+    useEffect(() => {
+        fetch("/auth/user/me", requestOption)
+            .then(async (respond) => respond.json())
+            .then((data) => {
+                setUser(() => {
+                    if (!data.user.is_teacher) {
+                        return {
+                            fullName: data.user.fullName,
+                            email: data.user.email,
+                            is_teacher: false,
+                            code: data.detail.masv,
+                            malop: data.detail.malop,
+                            sdt: data.detail.sdt,
+                            domain: data.detail.nganh,
+                        };
+                    } else {
+                        return {
+                            fullName: data.user.fullName,
+                            email: data.user.email,
+                            is_teacher: true,
+                            code: data.detail.magv,
+                            malop: "",
+                            sdt: "",
+                            domain: data.detail.vien,
+                        };
+                    }
+                });
+                setLoad(false);
+            });
+    }, []);
+
+    console.log(user);
+
+    if (loading) {
+        return <h1>LOADING ....</h1>;
+    } else {
+        return (
+            <ThemeProvider theme={hust}>
+                <AppBar align="left" elevation={5}>
+                    <CssBaseline />
+                    <Toolbar>
+                        <img
+                            width="55pt"
+                            height="82pt"
+                            src={
+                                "https://storage.googleapis.com/hust-files/5807675312963584/images/hust-logo-official_.3m.jpeg"
+                            }
+                            alt="hust_logo"
+                        />
+                        <Container align="left">
+                            <Typography variant="h5">
+                                Hệ thống quản lý bộ môn đồ án
+                            </Typography>
+                            <Typography variant="subtitle1">
+                                ĐẠI HỌC BÁCH KHOA HÀ NỘI
+                            </Typography>
+                        </Container>
+                        <Container
+                            align="right"
+                            sx={{ display: { xs: "none", sm: "block" } }}
+                        >
+                            <Box
+                                alignContent="right"
+                                display="flex"
+                                flexDirection="row"
+                                alignItems="center  "
+                                justifyContent="flex-end"
+                                sx={{
+                                    columnGap: 3,
+                                }}
+                            >
+                                <Typography variant="subtitle1">
+                                    {user.fullName}
+                                </Typography>
+                                <Avatar align="right"></Avatar>
+                            </Box>
+                            <Typography variant="subtitle1" align="right">
+                                Ngày tháng năm
+                            </Typography>
+                        </Container>
+                    </Toolbar>
                     <Container
-                        align="right"
+                        component={Paper}
+                        maxWidth={false}
                         sx={{ display: { xs: "none", sm: "block" } }}
                     >
-                        <Box
-                            alignContent="right"
-                            display="flex"
-                            flexDirection="row"
-                            alignItems="center  "
-                            justifyContent="flex-end"
-                            sx={{
-                                columnGap: 3,
-                            }}
-                        >
-                            <Typography></Typography>
-                            <Avatar align="right"></Avatar>
+                        <Box alignContent="left" alignSelf="left">
+                            <List>
+                                {sections.map((item) => (
+                                    <Button key={item} sx={{ color: "black" }}>
+                                        {item}
+                                    </Button>
+                                ))}
+                            </List>
                         </Box>
-                        <Typography variant="subtitle1" align="right">
-                            Ngày tháng năm
-                        </Typography>
                     </Container>
-                </Toolbar>
-                <Container
-                    component={Paper}
-                    maxWidth={false}
-                    sx={{ display: { xs: "none", sm: "block" } }}
-                >
-                    <Box alignContent="left" alignSelf="left">
-                        <List>
-                            {sections.map((item) => (
-                                <Button key={item} sx={{ color: "black" }}>
-                                    {item}
-                                </Button>
-                            ))}
-                        </List>
-                    </Box>
-                </Container>
-            </AppBar>
+                </AppBar>
 
-            {/* Set up tabular and calendar just like the practice*/}
-        </ThemeProvider>
-    );
+                {/* Set up tabular and calendar just like the practice*/}
+            </ThemeProvider>
+        );
+    }
 }
