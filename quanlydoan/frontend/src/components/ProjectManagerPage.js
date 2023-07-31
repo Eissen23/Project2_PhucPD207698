@@ -78,8 +78,6 @@ export default function ProjectManagerPage() {
             });
     }, []);
 
-    console.log(user);
-
     if (loading) {
         return <h1>LOADING ....</h1>;
     } else {
@@ -133,19 +131,31 @@ export default function ProjectManagerPage() {
                         maxWidth={false}
                         sx={{ display: { xs: "none", sm: "block" } }}
                     >
-                        <Box alignContent="left" alignSelf="left">
-                            <List>
-                                {sections.map((item) => (
-                                    <Button key={item} sx={{ color: "black" }}>
-                                        {item}
-                                    </Button>
-                                ))}
-                            </List>
-                        </Box>
+                        <TabContext>
+                            <Box alignContent="left" alignSelf="left">
+                                <List>
+                                    {sections.map((item) => (
+                                        <Button key={item} sx={{ color: "black" }}>
+                                            {item}
+                                        </Button>
+                                    ))}
+                                </List>
+                            </Box>
+                        </TabContext>
                     </Container>
                 </AppBar>
 
-                {/* Set up tabular and calendar just like the practice*/}
+                <Box sx={{ flexGrow: 1 }}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={8}>
+
+                        </Grid>
+
+                        <Grid item xs={4}>
+                            {/* For calendar */}
+                        </Grid>
+                    </Grid>
+                </Box>
             </ThemeProvider>
         );
     }
