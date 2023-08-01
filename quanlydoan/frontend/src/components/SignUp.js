@@ -10,7 +10,6 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Alert } from "@mui/material";
 
 // TODO remove, this demo shouldn't need to reset the theme.
 

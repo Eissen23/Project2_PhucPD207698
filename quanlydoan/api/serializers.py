@@ -24,3 +24,5 @@ class NhomSerializer (serializers.ModelSerializer):
     class Meta:
         model = Nhom
         fields = ('idnhom', 'mamon', 'magv', 'term', 'tennhom', 'tendetai', 'projectstatus', )
+        
+        
