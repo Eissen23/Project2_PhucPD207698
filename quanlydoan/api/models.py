@@ -181,43 +181,41 @@ class Giangvien(models.Model):
     class Meta:
         managed = True
         db_table = 'giangvien'
-        
-class Note(models.Model):
-    noteid = models.CharField(db_column='NoteId', primary_key=True, max_length=10)  # Field name made lowercase.
-    note = models.CharField(db_column='Note', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    report = models.CharField(db_column='Report', max_length=100, blank=True, null=True)  # Field name made lowercase.
 
-    class Meta:
-        managed = False
-        db_table = 'note'
-        
 class Mon(models.Model):
-    mamon = models.CharField(db_column='MaMon', primary_key=True, max_length=10)  # Field name made lowercase. The composite primary key (MaMon, MaGV) found, that is not supported. The first column is selected.
-    magv = models.ForeignKey(Giangvien, models.DO_NOTHING, db_column='MaGV')  # Field name made lowercase.
+    mamon = models.CharField(db_column='MaMon', primary_key=True, max_length=10)  # Field name made lowercase.
     tenmon = models.CharField(db_column='TenMon', max_length=20, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'mon'
-        unique_together = (('mamon', 'magv'),)
         
-class Nhom(models.Model):
-    idnhom = models.CharField(db_column='IdNhom', primary_key=True, max_length=5)  # Field name made lowercase.
+        
+class Mongiangvien(models.Model):
+    magiangday = models.CharField(db_column='MaGiangDay', primary_key=True, max_length=8)  # Field name made lowercase.
     mamon = models.ForeignKey(Mon, models.DO_NOTHING, db_column='MaMon', blank=True, null=True)  # Field name made lowercase.
     magv = models.ForeignKey(Giangvien, models.DO_NOTHING, db_column='MaGV', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'mongiangvien'
+
+class Nhom(models.Model):
+    idnhom = models.CharField(db_column='IdNhom', primary_key=True, max_length=5)  # Field name made lowercase.
     term = models.PositiveIntegerField(db_column='Term', blank=True, null=True)  # Field name made lowercase.
     tennhom = models.CharField(db_column='TenNhom', max_length=10, blank=True, null=True)  # Field name made lowercase.
     tendetai = models.CharField(db_column='TenDetai', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    projectstatus = models.IntegerField(db_column='ProjectStatus', blank=True, null=True)  # Field name made lowercase.
+    projectstatus = models.BooleanField(db_column='ProjectStatus', blank=True, null=True)  # Field name made lowercase.
+    magiangday = models.ForeignKey(Mongiangvien, models.DO_NOTHING, db_column='MaGiangDay', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'nhom'
+
         
 class Sinhvien(models.Model):
     masv = models.CharField(db_column='MaSV', primary_key=True, max_length=8)  # Field name made lowercase.
     hoten = models.CharField(db_column='HoTen', max_length=40, blank=True, null=True)  # Field name made lowercase.
-    idnhom = models.ForeignKey("Nhom", models.DO_NOTHING, db_column='IdNhom', blank=True, null=True)  # Field name made lowercase.
     malop = models.CharField(db_column='MaLop', max_length=20, blank=True, null=True)  # Field name made lowercase.
     sdt = models.CharField(db_column='SDT', max_length=10, blank=True, null=True)  # Field name made lowercase.
     nganh = models.CharField(db_column='Nganh', max_length=50, blank=True, null=True)  # Field name made lowercase.
@@ -231,10 +229,28 @@ class Sinhvien(models.Model):
 class Cuochop(models.Model):
     id = models.CharField(primary_key=True, max_length=10)
     idnhom = models.ForeignKey('Nhom', models.DO_NOTHING, db_column='IdNhom', blank=True, null=True)  # Field name made lowercase.
-    noteid = models.ForeignKey('Note', models.DO_NOTHING, db_column='NoteId', blank=True, null=True)  # Field name made lowercase.
     meettime = models.DateTimeField(db_column='MeetTime', blank=True, null=True)  # Field name made lowercase.
-    isnoted = models.IntegerField(db_column='isNoted', blank=True, null=True)  # Field name made lowercase.
+    isnoted = models.BooleanField(db_column='isNoted', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'cuochop'
+
+class Note(models.Model):
+    noteid = models.CharField(db_column='NoteId', primary_key=True, max_length=10)  # Field name made lowercase.
+    note = models.CharField(db_column='Note', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    report = models.CharField(db_column='Report', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    cuochop = models.ForeignKey(Cuochop, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'note'
+
+class Thanhviennhom(models.Model):
+    mathamgia = models.CharField(db_column='MaThamGia', primary_key=True, max_length=8)  # Field name made lowercase.
+    masv = models.ForeignKey(Sinhvien, models.DO_NOTHING, db_column='MaSV', blank=True, null=True)  # Field name made lowercase.
+    idnhom = models.ForeignKey(Nhom, models.DO_NOTHING, db_column='IdNhom', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'thanhviennhom'

@@ -2,14 +2,18 @@ from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Sinhvien, Giangvien, Nhom
-from .serializers import UserSerializer, SinhvienSerializer, GiangvienSerializer
+from .models import Sinhvien, Giangvien, Nhom, Mongiangvien, Thanhviennhom, Cuochop
+from .serializers import UserSerializer, SinhvienSerializer, GiangvienSerializer, NhomSerializer, ThanhVienNhomSerializer, CuocHopSerializer
 from django.contrib.auth import get_user_model
 import traceback
+import random, string
 
 User = get_user_model()
 
 # Create your views here.
+
+def id_generator (size = 5, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 def insert_student(requested_data, user, fullName, email):
     hoten = fullName
@@ -126,3 +130,97 @@ class RetrieveUserView(APIView):
             
             
 # get the data of the corresponding user
+
+class CreateProjectGroup(APIView):
+    
+    serializer_class = NhomSerializer
+    
+    def post(self, request):
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                while True: 
+                    idnhom = id_generator()
+                    if (Nhom.objects.filter(idnhom = idnhom).count() == 0):
+                        break                        
+                    
+                term = serializer.data.get('term') 
+                tennhom = serializer.data.get('tennhom')
+                tendetai = serializer.data.get('tendetai')
+                magiangday = serializer.data.get('magiangday')
+                magiangday = Mongiangvien.objects.get(magiangday = magiangday)
+                
+                nhom = Nhom(idnhom = idnhom, term = term, tennhom = tennhom, tendetai = tendetai, projectstatus = True, magiangday= magiangday )
+                nhom.save()
+                
+                return Response(NhomSerializer(nhom).data, status=status.HTTP_201_CREATED)
+            
+            return  Response({'error': 'Something went wrong'}, status= status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            traceback.print_exc()
+            return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        
+class AddStudentGroup(APIView):
+
+    serializer_class = ThanhVienNhomSerializer
+    def post(self, request):
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                while True:
+                    mathamgia = id_generator(size=8)
+                    if(Thanhviennhom.objects.filter(mathamgia = mathamgia).count() == 0):
+                        break
+                    
+                masv = serializer.data.get('masv')
+                masv = Sinhvien.objects.get(masv = masv)
+                
+                idnhom = serializer.data.get('idnhom')
+                idnhom = Nhom.objects.get(idnhom = idnhom)
+                
+                tvn = Thanhviennhom(mathamgia = mathamgia, masv = masv, idnhom = idnhom)
+                tvn.save()  
+
+                return Response(ThanhVienNhomSerializer(tvn).data, status=status.HTTP_201_CREATED)
+            
+            return Response({'error': 'Something went wrong'}, status= status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            traceback.print_exc()
+            return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+def push_note():
+    pass
+
+class CreateMeeting(APIView):
+    permission_classes = (permissions.AllowAny, )
+    serializer_class = CuocHopSerializer
+    
+    def post(self, request):
+        try: 
+            serializer = self.serializer_class(data = request.data)
+            if serializer.is_valid():
+                while True:
+                    id = id_generator(size=10)
+                    if (Cuochop.objects.filter(id = id).count() == 0):
+                        break
+                    
+                idnhom = serializer.data.get('idnhom')
+                idnhom = Nhom.objects.get(idnhom = idnhom)
+                
+                meettime = serializer.data.get('meettime')
+                isnoted = serializer.data.get('isnoted')
+
+                cuochop = Cuochop(id = id, idnhom = idnhom, meettime = meettime, isnoted = isnoted)
+                cuochop.save()
+                
+                return Response(CuocHopSerializer(cuochop).data, status=status.HTTP_201_CREATED)
+            
+            return Response({'error': 'Something went wrong'}, status= status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            traceback.print_exc()
+            return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
