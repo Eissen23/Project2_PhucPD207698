@@ -36,7 +36,7 @@ class MonSerializer(serializers.ModelSerializer):
         model = Mon
         fields = ('mamon', 'tenmon', )
         
-class MonGiangVien (serializers.ModelSerializer):
+class MonGiangVienSerializer (serializers.ModelSerializer):
     class Meta:
         model = Mongiangvien
         fields = ('magiangday', 'mamon', 'magv')

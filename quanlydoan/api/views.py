@@ -3,7 +3,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Sinhvien, Giangvien, Nhom, Mongiangvien, Thanhviennhom, Cuochop
-from .serializers import UserSerializer, SinhvienSerializer, GiangvienSerializer, NhomSerializer, ThanhVienNhomSerializer, CuocHopSerializer
+from .serializers import UserSerializer, SinhvienSerializer, GiangvienSerializer, NhomSerializer, ThanhVienNhomSerializer, CuocHopSerializer, MonGiangVienSerializer
 from django.contrib.auth import get_user_model
 import traceback
 import random, string
@@ -11,6 +11,7 @@ import random, string
 User = get_user_model()
 
 # Create your views here.
+#TODO: Lack of scheduled meet setting,lack of grouping  
 
 def id_generator (size = 5, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -128,15 +129,53 @@ class RetrieveUserView(APIView):
                 status= status.HTTP_500_INTERNAL_SERVER_ERROR
             )
             
+class ManageClass(APIView):
+    
+    serializer_class = MonGiangVienSerializer
+    
+    def get(self, request, format = None):
+        try:
+            user = request.user
+            if not user.is_teacher:
+                return Response({'error': 'User does not have necessary permission' }, status=status.HTTP_403_FORBIDDEN)
             
-# get the data of the corresponding user
+            giangvien = Giangvien.objects.get(user_id = user.id)
+            giangvien_id = giangvien.magv
+            
+            mongiangday = Mongiangvien.objects.filter(magv = giangvien_id)
+            mongiangday = MonGiangVienSerializer(data=mongiangday, many = True)
+            mongiangday.is_valid()
+            
+            return Response({'classes': mongiangday.data}, status= status.HTTP_200_OK)
+                       
+        except:
+            traceback.print_exc()
+            return Response(
+                {'error': 'Something went wrong'},
+                status= status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
 
-class CreateProjectGroup(APIView):
+
+# get the data of the corresponding user
+"""
+Để từ giảng viên tới được danh sách các nhóm mà mình quảng lý:
+1. từ UserAccount id -> Giangvien user_id VD: giangvien.objects.get(user_id = ...)
+2. từ Giangvien magv -> MonGiangVien magv: MonGiangVien.objects.filter(magv = ...)
+3. filter lần lượt các nhóm có MonGiangvien magiangday -> Nhom magiangday: Nhom.objects.filter(magiangday = ..)
+"""
+ 
+class ManageProjectGroup(APIView):
     
     serializer_class = NhomSerializer
     
     def post(self, request):
         try:
+            user = request.user
+            
+            if not user.is_teacher:
+                return Response({'error': 'User does not have necessary permission' }, status=status.HTTP_403_FORBIDDEN)
+            
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 while True: 
@@ -157,16 +196,63 @@ class CreateProjectGroup(APIView):
             
             return  Response({'error': 'Something went wrong'}, status= status.HTTP_400_BAD_REQUEST)
             
-        except Exception as e:
+        except :
+            traceback.print_exc()
+            return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    # get the list of project group for each the student and teacher
+    def get(self, request, format=None):
+        try:
+            user = request.user
+            
+            # for the teacher side
+            if not user.is_teacher:
+                return Response({'error': 'User does not have necessary permission' }, status=status.HTTP_403_FORBIDDEN)
+            
+            giangvien = Giangvien.objects.get(user_id = user.id)
+            giangvien_id = giangvien.magv
+            
+            # incase there is no param idnhom            
+            idnhom = request.query_params.get('idnhom')
+            
+            if not idnhom:
+                mongiangday = Mongiangvien.objects.order_by('mamon').filter(magv = giangvien_id)   
+                mongiangday = MonGiangVienSerializer(data=mongiangday, many = True)
+                
+                if mongiangday.is_valid():                
+                    project_group = []            
+                    for subject in mongiangday.data:
+                        nhom = Nhom.objects.get(magiangday = subject.get('magiangday'))
+                        # print(NhomSerializer(nhom).data)
+                        project_group.append(NhomSerializer(nhom).data)
+                            
+
+                    return Response({'nhom': project_group}, status=status.HTTP_200_OK)
+                
+                return Response({'mongiangday': mongiangday.errors}, status=status.HTTP_400_BAD_REQUEST)
+            # for incase need to use the param idnhom 
+            # check the following vid https://www.youtube.com/watch?v=N5x1wugptUM&list=PLJRGQoqpRwdfgaQujSZMzrG7AkRlbjRkC&index=7
+            
+        except:
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
             
-        
-class AddStudentGroup(APIView):
+# handling the member of the group project 
+"""
+    Để đến được thành viên nhóm:
+    
+"""       
+class ManageStudentGroup(APIView):
 
     serializer_class = ThanhVienNhomSerializer
     def post(self, request):
         try:
+            
+            user = request.user
+            
+            if not user.is_teacher:
+                return Response({'error': 'User does not have necessary permission' }, status=status.HTTP_403_FORBIDDEN)
+            
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 while True:
@@ -191,7 +277,13 @@ class AddStudentGroup(APIView):
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
+    def get(self, request, format= None):
+        user = request.user
+        
+        
+        
+        
+    
 def push_note():
     pass
 
