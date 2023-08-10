@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Sinhvien, Giangvien, Nhom, Mongiangvien, Thanhviennhom, Cuochop
-from .serializers import UserSerializer, SinhvienSerializer, GiangvienSerializer, NhomSerializer, ThanhVienNhomSerializer, CuocHopSerializer, MonGiangVienSerializer
+from .models import Sinhvien, Giangvien, Nhom, Mongiangvien, Thanhviennhom, Cuochop, Report
+from .serializers import UserSerializer, SinhvienSerializer, GiangvienSerializer, NhomSerializer, ThanhVienNhomSerializer, CuocHopSerializer, MonGiangVienSerializer, ReportSerializer
 from django.contrib.auth import get_user_model
 import traceback
 import random, string
@@ -205,22 +205,22 @@ class ManageProjectGroup(APIView):
         try:
             user = request.user
             
-            # for the teacher side
-            if not user.is_teacher:
-                return Response({'error': 'User does not have necessary permission' }, status=status.HTTP_403_FORBIDDEN)
-            
-            giangvien = Giangvien.objects.get(user_id = user.id)
-            giangvien_id = giangvien.magv
-            
-            # incase there is no param idnhom            
             idnhom = request.query_params.get('idnhom')
+            project_group = []
             
-            if not idnhom:
-                mongiangday = Mongiangvien.objects.order_by('mamon').filter(magv = giangvien_id)   
-                mongiangday = MonGiangVienSerializer(data=mongiangday, many = True)
+            # for the teacher side
+            if user.is_teacher:   
+                giangvien = Giangvien.objects.get(user_id = user.id)
+                giangvien_id = giangvien.magv
                 
-                if mongiangday.is_valid():                
-                    project_group = []            
+                # incase there is no param idnhom            
+                
+                
+                if not idnhom:
+                    mongiangday = Mongiangvien.objects.order_by('mamon').filter(magv = giangvien_id)   
+                    mongiangday = MonGiangVienSerializer(data=mongiangday, many = True)
+                    
+                    mongiangday.is_valid()                
                     for subject in mongiangday.data:
                         nhom = Nhom.objects.get(magiangday = subject.get('magiangday'))
                         # print(NhomSerializer(nhom).data)
@@ -228,10 +228,27 @@ class ManageProjectGroup(APIView):
                             
 
                     return Response({'nhom': project_group}, status=status.HTTP_200_OK)
+                    
+                # for incase need to use the param idnhom 
+                # check the following vid https://www.youtube.com/watch?v=N5x1wugptUM&list=PLJRGQoqpRwdfgaQujSZMzrG7AkRlbjRkC&index=7
+            
+            # TODO: test this branch later 
+            else:
+                sinhvien = Sinhvien.objects.get(user_id = user.id)
+                sinhvien_id = sinhvien.masv
                 
-                return Response({'mongiangday': mongiangday.errors}, status=status.HTTP_400_BAD_REQUEST)
-            # for incase need to use the param idnhom 
-            # check the following vid https://www.youtube.com/watch?v=N5x1wugptUM&list=PLJRGQoqpRwdfgaQujSZMzrG7AkRlbjRkC&index=7
+                if not idnhom:
+                    thanhviennhom =  Thanhviennhom.objects.filter(masv = sinhvien_id)
+                    thanhviennhom = ThanhVienNhomSerializer(data=thanhviennhom, many = True)
+                    
+                    thanhviennhom.is_valid()
+                    for group in thanhviennhom.data:
+                        print(group)
+                        nhom = Nhom.objects.get(idnhom = group.get('idnhom'))
+                        print(NhomSerializer(nhom).data)
+                        project_group.append(NhomSerializer(nhom).data)
+
+                    return Response({'nhom': project_group}, status=status.HTTP_200_OK)
             
         except:
             traceback.print_exc()
@@ -280,19 +297,17 @@ class ManageStudentGroup(APIView):
     def get(self, request, format= None):
         user = request.user
         
-        
-        
-        
-    
-def push_note():
-    pass
+
 
 class CreateMeeting(APIView):
-    permission_classes = (permissions.AllowAny, )
     serializer_class = CuocHopSerializer
     
     def post(self, request):
         try: 
+            user= request.user
+            if not user.is_teacher:
+                return Response({'error': 'User does not have necessary permission' }, status=status.HTTP_403_FORBIDDEN)
+            
             serializer = self.serializer_class(data = request.data)
             if serializer.is_valid():
                 while True:
@@ -304,15 +319,67 @@ class CreateMeeting(APIView):
                 idnhom = Nhom.objects.get(idnhom = idnhom)
                 
                 meettime = serializer.data.get('meettime')
-                isnoted = serializer.data.get('isnoted')
+                isreported = serializer.data.get('isreported')
+                ghichu = serializer.data.get('ghichu')
 
-                cuochop = Cuochop(id = id, idnhom = idnhom, meettime = meettime, isnoted = isnoted)
+                cuochop = Cuochop(id = id, idnhom = idnhom, meettime = meettime, isreported = isreported, isscheduled = True, ghichu = ghichu)
                 cuochop.save()
+                
+                if isreported:
+                    while True:
+                        reportid= id_generator(size=10)
+                        if(Report.objects.filter(reportid = reportid).count() == 0):
+                            break
+                        
+                    report = Report(reportid = reportid, codeurl= "", report = "", cuochop = cuochop)
+                    report.save()
                 
                 return Response(CuocHopSerializer(cuochop).data, status=status.HTTP_201_CREATED)
             
-            return Response({'error': 'Something went wrong'}, status= status.HTTP_400_BAD_REQUEST)
+            return Response({'error': serializer.errors}, status= status.HTTP_400_BAD_REQUEST)
             
         except Exception as e:
+            traceback.print_exc()
+            return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def get(self, request, format = None):
+       try:
+            user = request.user
+            
+            data = request.data 
+            idnhom = data['idnhom']
+            
+            nhom = Nhom.objects.get(idnhom = idnhom)
+            meeting = Cuochop.objects.get(idnhom = nhom.idnhom)
+            meeting = CuocHopSerializer(data = meeting, many = True)
+            meeting.is_valid
+            
+            return Response({'last_meeting': meeting.data},status= status.HTTP_200_OK)
+       except:
+            traceback.print_exc()
+            return Response({'error': meeting.errors}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class ManageReport(APIView):
+    def put(self, request):
+        try:
+            user = request.user
+            if user.is_teacher: 
+                return Response({'error':'Only student are allowed'}, status=status.HTTP_403_FORBIDDEN)
+            
+            data = request.data
+            
+            meeting_id = data['id']
+            
+            codeurl = data['codeurl']
+            report = data['report']
+            
+            baocao = Report.objects.filter(cuochop = meeting_id).update(reportid = baocao.id,codeurl = codeurl, report = report, cuochop=meeting_id)
+       
+            return Response(
+                {'success': 'Listing updated successfully'},
+                status=status.HTTP_200_OK
+            )
+            
+        except: 
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)

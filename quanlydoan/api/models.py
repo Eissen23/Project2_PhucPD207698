@@ -230,21 +230,23 @@ class Cuochop(models.Model):
     id = models.CharField(primary_key=True, max_length=10)
     idnhom = models.ForeignKey('Nhom', models.DO_NOTHING, db_column='IdNhom', blank=True, null=True)  # Field name made lowercase.
     meettime = models.DateTimeField(db_column='MeetTime', blank=True, null=True)  # Field name made lowercase.
-    isnoted = models.BooleanField(db_column='isNoted', blank=True, null=True)  # Field name made lowercase.
-
+    isreported = models.BooleanField(db_column='isReported', blank=True, null=True)  # Field name made lowercase.
+    isscheduled = models.BooleanField(db_column='isScheduled', blank=True, null=True)  # Field name made lowercase.
+    ghichu = models.CharField(db_column='GhiChu', max_length=254, blank=True, null=True)  # Field name made lowercase.
+    
     class Meta:
         managed = False
         db_table = 'cuochop'
 
-class Note(models.Model):
-    noteid = models.CharField(db_column='NoteId', primary_key=True, max_length=10)  # Field name made lowercase.
-    note = models.CharField(db_column='Note', max_length=100, blank=True, null=True)  # Field name made lowercase.
+class Report(models.Model):
+    reportid = models.CharField(db_column='ReportId', primary_key=True, max_length=10)  # Field name made lowercase.
+    codeurl = models.CharField(db_column='Codeurl', max_length=100, blank=True, null=True)  # Field name made lowercase.
     report = models.CharField(db_column='Report', max_length=100, blank=True, null=True)  # Field name made lowercase.
     cuochop = models.ForeignKey(Cuochop, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'note'
+        db_table = 'report'
 
 class Thanhviennhom(models.Model):
     mathamgia = models.CharField(db_column='MaThamGia', primary_key=True, max_length=8)  # Field name made lowercase.
