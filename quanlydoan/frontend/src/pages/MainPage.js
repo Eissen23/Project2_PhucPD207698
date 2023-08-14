@@ -1,20 +1,50 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import  PropTypes  from "prop-types";
+import AuthContext from "../context/AuthContext";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
+import { Typography } from "@material-ui/core";
 const MainPage = (props) => {
-    const {type, user, ...others} = props
+    const {token, user, ...others} = props
 
     
 
-    return (
-        <div>
+    let [groupdata, setGroupData] = useState([])
+    let [is_fetched, setFetch] = useState(false)
+    useEffect(() => {
+        if (user.is_teacher)
+        {
+            fetch("/auth/user/manageclass", {
+                method: "GET",
+                headers: { Authorization: "Bearer " + token },
+            }).then(async (respond) => respond.json()).then((data) => setGroupData(data))
+        }else{
+            fetch("/auth/user/manageclass", {
+                method: "GET",
+                headers: { Authorization: "Bearer " + token },
+            }).then(async (respond) => respond.json()).then((data) => setGroupData(data))
+        }
 
-        </div>
-    )
+        if(!is_fetched)
+            setFetch(true)
+    }, []);    
+
+    console.log(groupdata)
+
+    if(is_fetched)
+        return (
+            
+            <div>
+                
+            </div>
+        )
+
+    else
+        return
+            <div>Fetching ...</div>
 }
 
 MainPage.propsTypes = {
-    type: PropTypes.bool.isRequired,
+    token: PropTypes.string.isRequired,
     user: PropTypes.object.isRequired,
 };
 

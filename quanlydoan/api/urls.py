@@ -8,5 +8,5 @@ urlpatterns = [
     path('managestudent', ManageStudentGroup.as_view()),
     path("manageclass", ManageClass.as_view()),
     path('createmeeting', CreateMeeting.as_view()),
-    path('managenreport', ManageReport.as_view()),
+    path('managereport', ManageReport.as_view()),
 ]

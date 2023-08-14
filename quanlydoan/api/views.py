@@ -295,8 +295,7 @@ class ManageStudentGroup(APIView):
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def get(self, request, format= None):
-        user = request.user
-        
+        pass        
 
 
 class CreateMeeting(APIView):
@@ -350,14 +349,14 @@ class CreateMeeting(APIView):
             idnhom = data['idnhom']
             
             nhom = Nhom.objects.get(idnhom = idnhom)
-            meeting = Cuochop.objects.get(idnhom = nhom.idnhom)
+            meeting = Cuochop.objects.filter(idnhom = nhom.idnhom)
             meeting = CuocHopSerializer(data = meeting, many = True)
-            meeting.is_valid
+            meeting.is_valid()
             
             return Response({'last_meeting': meeting.data},status= status.HTTP_200_OK)
        except:
             traceback.print_exc()
-            return Response({'error': meeting.errors}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': "something wrong"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class ManageReport(APIView):
     def put(self, request):
@@ -369,11 +368,12 @@ class ManageReport(APIView):
             data = request.data
             
             meeting_id = data['id']
+            meeting = Cuochop.objects.get(id = meeting_id)
             
             codeurl = data['codeurl']
             report = data['report']
             
-            baocao = Report.objects.filter(cuochop = meeting_id).update(reportid = baocao.id,codeurl = codeurl, report = report, cuochop=meeting_id)
+            baocao = Report.objects.filter(cuochop = meeting).update(reportid = baocao.id,codeurl = codeurl, report = report, cuochop=meeting)
        
             return Response(
                 {'success': 'Listing updated successfully'},
@@ -381,5 +381,27 @@ class ManageReport(APIView):
             )
             
         except: 
+            traceback.print_exc()
+            return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+    def get(self, request, format = None):
+        try:
+            user = request.user
+            if not user.is_teacher:
+                return Response({'error':'Only student are allowed'}, status=status.HTTP_403_FORBIDDEN)
+            
+            data = request.data
+            meeting_id = data['cuochop']
+            meeting = Cuochop.objects.get(id = meeting_id)
+            
+            
+            report = Report.objects.filter(cuochop = meeting)
+            report = ReportSerializer(data = report)
+            report.is_valid()
+            
+            return Response({'data': report.data}, status=status.HTTP_200_OK)
+            
+        except:
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)

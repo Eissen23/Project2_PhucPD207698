@@ -16,6 +16,7 @@ import {
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import AuthContext from "../context/AuthContext";
 import CustomTabPanel from "../utils/BasicTabs";
+import MainPage from "../pages/MainPage";
 
 const hust = createTheme({
     palette: {
@@ -147,7 +148,6 @@ export default function ProjectManagerPage() {
                                         value={value}
                                         onChange={handleChange}
                                         aria-label="basic tabs example"
-                                        textColor="black"
                                     >
                                         <Tab
                                             label="Trang chủ"
@@ -171,7 +171,7 @@ export default function ProjectManagerPage() {
 
                     <Grid item xs={8} sm={2} marginTop={15}>
                         <CustomTabPanel value={value} index={0}>
-                            Content của trang chủ
+                            <MainPage user={user} token={authToken['access']} />
                         </CustomTabPanel>
 
                         <CustomTabPanel value={value} index={1}>
