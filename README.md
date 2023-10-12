@@ -4,7 +4,6 @@
 Sử dụng câu lệnh tạo môi trường ảo
 		```py -m venv <tên mt ảo>```
 Với các dependencies như sau:
-```
 Nó sẽ tạo ra mội thư mục chứa môi trường ào 
 ### 2. Kích hoạt môi trường ảo
 - ==lưu ý== : đới với người dùng Window 11 thì cần phải set up thêm bước này
