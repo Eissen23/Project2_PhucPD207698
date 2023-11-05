@@ -23,6 +23,7 @@ urlpatterns = [
     path('auth/user/', include('api.urls')),
     path('', include('frontend.urls')),
     path('admin/', admin.site.urls),
+    # Api path for verified only
     path('api/token/', TokenObtainPairView.as_view()),
     path('api/token/refresh/', TokenRefreshView.as_view()),
     path('api/token/verify/', TokenVerifyView.as_view()),
