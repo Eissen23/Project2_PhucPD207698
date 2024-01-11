@@ -130,4 +130,8 @@ Phần code trên chỉ có đước sử dụng cho React v5 trở về trc  nh
 [reactjs - Attempted import error: 'Switch' is not exported from 'react-router-dom' - Stack Overflow](https://stackoverflow.com/questions/63124161/attempted-import-error-switch-is-not-exported-from-react-router-dom)
 
 # USED API 
-Hust logo [hust-logo-official_.3m.jpeg (787×1184) (storage.googleapis.com)](https://storage.googleapis.com/hust-files/5807675312963584/images/hust-logo-official_.3m.jpeg)
+  Hust logo [hust-logo-official_.3m.jpeg (787×1184) (storage.googleapis.com)](https://storage.googleapis.com/hust-files/5807675312963584/images/hust-logo-official_.3m.jpeg)
+
+
+  project.urls.py
+    app.urls.py
