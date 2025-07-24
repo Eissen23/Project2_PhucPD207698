@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'rest_framework',
-    'frontend.apps.FrontendConfig'
 ]
 
 MIDDLEWARE = [
@@ -60,7 +59,7 @@ ROOT_URLCONF = 'quanlydoan.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, "frontend\\templates\\frontend")],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -89,7 +88,7 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'USER': 'root',
-        'PASSWORD': 'DucPhuc2',
+        'PASSWORD': '',
     }
 }
 
@@ -163,7 +162,7 @@ USE_TZ = True
 # TODO: check the Build from the template too
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend\static')
+    os.path.join(BASE_DIR, '')
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 

@@ -6,7 +6,7 @@ from .models import Sinhvien, Giangvien, Nhom, Mongiangvien, Thanhviennhom, Cuoc
 from .serializers import UserSerializer, SinhvienSerializer, GiangvienSerializer, NhomSerializer, ThanhVienNhomSerializer, CuocHopSerializer, MonGiangVienSerializer, ReportSerializer, SignupSerializer
 from django.contrib.auth import get_user_model
 import traceback
-from utitlities.id_generator import id_generator
+from .utilities.id_generator import id_generator
 
 User = get_user_model()
 
