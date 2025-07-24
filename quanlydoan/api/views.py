@@ -1,12 +1,12 @@
-from django.shortcuts import render
-from rest_framework import generics, permissions, status
+from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Sinhvien, Giangvien, Nhom, Mongiangvien, Thanhviennhom, Cuochop, Report
 from .serializers import UserSerializer, SinhvienSerializer, GiangvienSerializer, NhomSerializer, ThanhVienNhomSerializer, CuocHopSerializer, MonGiangVienSerializer, ReportSerializer
 from django.contrib.auth import get_user_model
 import traceback
-import random, string
+import random
+import string
 
 User = get_user_model()
 
@@ -91,7 +91,7 @@ class SignupView(APIView):
                     {'error': 'Password do not match'},
                     status= status.HTTP_400_BAD_REQUEST
                 )
-        except Exception as e:
+        except Exception:
             traceback.print_exc()
             return Response(
                 {'error': 'Something went wrong!'},
@@ -122,7 +122,7 @@ class RetrieveUserView(APIView):
                 status=status.HTTP_200_OK
             )
             
-        except Exception as e:
+        except Exception:
             traceback.print_exc()
             return Response(
                 {'error': 'Something went wrong'},
@@ -148,7 +148,7 @@ class ManageClass(APIView):
             
             return Response({'classes': mongiangday.data}, status= status.HTTP_200_OK)
                        
-        except:
+        except Exception:
             traceback.print_exc()
             return Response(
                 {'error': 'Something went wrong'},
@@ -196,7 +196,7 @@ class ManageProjectGroup(APIView):
             
             return  Response({'error': 'Something went wrong'}, status= status.HTTP_400_BAD_REQUEST)
             
-        except :
+        except Exception:
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -250,7 +250,7 @@ class ManageProjectGroup(APIView):
 
                     return Response({'nhom': project_group}, status=status.HTTP_200_OK)
             
-        except:
+        except Exception:
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
             
@@ -290,7 +290,7 @@ class ManageStudentGroup(APIView):
             
             return Response({'error': 'Something went wrong'}, status= status.HTTP_400_BAD_REQUEST)
             
-        except Exception as e:
+        except Exception:
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -337,13 +337,12 @@ class CreateMeeting(APIView):
             
             return Response({'error': serializer.errors}, status= status.HTTP_400_BAD_REQUEST)
             
-        except Exception as e:
+        except Exception:
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def get(self, request, format = None):
        try:
-            user = request.user
             
             data = request.data 
             idnhom = data['idnhom']
@@ -354,7 +353,7 @@ class CreateMeeting(APIView):
             meeting.is_valid()
             
             return Response({'last_meeting': meeting.data},status= status.HTTP_200_OK)
-       except:
+       except Exception:
             traceback.print_exc()
             return Response({'error': "something wrong"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -373,14 +372,16 @@ class ManageReport(APIView):
             codeurl = data['codeurl']
             report = data['report']
             
-            baocao = Report.objects.filter(cuochop = meeting).update(reportid = baocao.id,codeurl = codeurl, report = report, cuochop=meeting)
-       
+            baocao = Report.objects.filter(cuochop = meeting)
+
+            baocao.update(reportid = baocao.id,codeurl = codeurl, report = report, cuochop=meeting)
+
             return Response(
                 {'success': 'Listing updated successfully'},
                 status=status.HTTP_200_OK
             )
             
-        except: 
+        except Exception: 
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -402,6 +403,6 @@ class ManageReport(APIView):
             
             return Response({'data': report.data}, status=status.HTTP_200_OK)
             
-        except:
+        except Exception:
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
