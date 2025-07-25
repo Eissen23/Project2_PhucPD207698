@@ -1,9 +1,8 @@
-from django.forms import ValidationError
-from rest_framework import permissions, status
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Sinhvien, Giangvien, Nhom, Mongiangvien, Thanhviennhom, Cuochop, Report
-from .serializers import UserSerializer, SinhvienSerializer, GiangvienSerializer, NhomSerializer, ThanhVienNhomSerializer, CuocHopSerializer, MonGiangVienSerializer, ReportSerializer, SignupSerializer
+from .models import Sinhvien, Giangvien, Nhom, Mongiangvien, Thanhviennhom
+from .serializers import NhomSerializer, ThanhVienNhomSerializer, MonGiangVienSerializer
 from django.contrib.auth import get_user_model
 import traceback
 from api.utilities.id_generator import id_generator
@@ -36,81 +35,7 @@ def insert_teacher(requested_data, user, fullName, email):
     
     return giangvien
 
-class SignupView(APIView):
-    permission_classes = (permissions.AllowAny,)
 
-    def post(self, request):
-        serializer = SignupSerializer(data=request.data)
-        
-        if not serializer.is_valid():
-            return Response(
-                {'errors': serializer.errors},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            validated_data = serializer.validated_data
-            email = validated_data['email'].lower()
-            full_name = validated_data['full_name']
-            password = validated_data['password']
-            is_teacher = validated_data['is_teacher']
-
-            if User.objects.filter(email=email).exists():
-                return Response(
-                    {'error': 'Email already exists'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            user = self.create_user(full_name, email, password, is_teacher)
-            self.insert_user_data(validated_data, user, is_teacher)
-
-            user_type = "Teacher" if is_teacher else "User"
-            return Response(
-                {"success": f"{user_type} successfully created"},
-                status=status.HTTP_201_CREATED
-            )
-
-        except ValidationError as e:
-            return Response(
-                {'error': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except Exception:
-            return Response(
-                {'error': 'Something went wrong'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-            
-     
-class RetrieveUserView(APIView):
-    def get(self, request, format=None):
-        try:
-            user = request.user
-            user = UserSerializer(user)
-            user_id = user.data['id']
-            
-            if not user.data['is_teacher']:
-                user_detail = Sinhvien.objects.get(user_id = user_id) 
-                detail = SinhvienSerializer(user_detail)
-                
-            else:
-                user_detail = Giangvien.objects.get(user_id = user_id)
-                detail = GiangvienSerializer(user_detail)
-            
-            return Response(
-                {
-                    'user': user.data,
-                    'detail': detail.data
-                },
-                status=status.HTTP_200_OK
-            )
-            
-        except Exception:
-            traceback.print_exc()
-            return Response(
-                {'error': 'Something went wrong'},
-                status= status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
             
 class ManageClass(APIView):
     
@@ -279,113 +204,3 @@ class ManageStudentGroup(APIView):
         
     def get(self, request, format= None):
         pass        
-
-
-class CreateMeeting(APIView):
-    serializer_class = CuocHopSerializer
-    
-    def post(self, request):
-        try: 
-            user= request.user
-            if not user.is_teacher:
-                return Response({'error': 'User does not have necessary permission' }, status=status.HTTP_403_FORBIDDEN)
-            
-            serializer = self.serializer_class(data = request.data)
-            if serializer.is_valid():
-                while True:
-                    id = id_generator(size=10)
-                    if (Cuochop.objects.filter(id = id).count() == 0):
-                        break
-                    
-                idnhom = serializer.data.get('idnhom')
-                idnhom = Nhom.objects.get(idnhom = idnhom)
-                
-                meettime = serializer.data.get('meettime')
-                isreported = serializer.data.get('isreported')
-                ghichu = serializer.data.get('ghichu')
-
-                cuochop = Cuochop(id = id, idnhom = idnhom, meettime = meettime, isreported = isreported, isscheduled = True, ghichu = ghichu)
-                cuochop.save()
-                
-                if isreported:
-                    while True:
-                        reportid= id_generator(size=10)
-                        if(Report.objects.filter(reportid = reportid).count() == 0):
-                            break
-                        
-                    report = Report(reportid = reportid, codeurl= "", report = "", cuochop = cuochop)
-                    report.save()
-                
-                return Response(CuocHopSerializer(cuochop).data, status=status.HTTP_201_CREATED)
-            
-            return Response({'error': serializer.errors}, status= status.HTTP_400_BAD_REQUEST)
-            
-        except Exception:
-            traceback.print_exc()
-            return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-    def get(self, request, format = None):
-       try:
-            
-            data = request.data 
-            idnhom = data['idnhom']
-            
-            nhom = Nhom.objects.get(idnhom = idnhom)
-            meeting = Cuochop.objects.filter(idnhom = nhom.idnhom)
-            meeting = CuocHopSerializer(data = meeting, many = True)
-            meeting.is_valid()
-            
-            return Response({'last_meeting': meeting.data},status= status.HTTP_200_OK)
-       except Exception:
-            traceback.print_exc()
-            return Response({'error': "something wrong"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-class ManageReport(APIView):
-    def put(self, request):
-        try:
-            user = request.user
-            if user.is_teacher: 
-                return Response({'error':'Only student are allowed'}, status=status.HTTP_403_FORBIDDEN)
-            
-            data = request.data
-            
-            meeting_id = data['id']
-            meeting = Cuochop.objects.get(id = meeting_id)
-            
-            codeurl = data['codeurl']
-            report = data['report']
-            
-            baocao = Report.objects.filter(cuochop = meeting)
-
-            baocao.update(reportid = baocao.id,codeurl = codeurl, report = report, cuochop=meeting)
-
-            return Response(
-                {'success': 'Listing updated successfully'},
-                status=status.HTTP_200_OK
-            )
-            
-        except Exception: 
-            traceback.print_exc()
-            return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        
-    def get(self, request, format = None):
-        try:
-            user = request.user
-            if not user.is_teacher:
-                return Response({'error':'Only student are allowed'}, status=status.HTTP_403_FORBIDDEN)
-            
-            data = request.data
-            meeting_id = data['cuochop']
-            meeting = Cuochop.objects.get(id = meeting_id)
-            
-            
-            report = Report.objects.filter(cuochop = meeting)
-            report = ReportSerializer(data = report)
-            report.is_valid()
-            
-            return Response({'data': report.data}, status=status.HTTP_200_OK)
-            
-        except Exception:
-            traceback.print_exc()
-            return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
