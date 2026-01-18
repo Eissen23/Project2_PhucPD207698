@@ -4,11 +4,11 @@
     <facet type="django" name="Django">
       <configuration>
         <option name="rootFolder" value="$MODULE_DIR$/quanlydoan" />
-        <option name="settingsModule" value="quanlydoan/settings.py" />
-        <option name="manageScript" value="$MODULE_DIR$/quanlydoan/manage.py" />
+        <option name="settingsModule" value="settings.py" />
+        <option name="manageScript" value="$MODULE_DIR$/manage.py" />
         <option name="environment" value="&lt;map/&gt;" />
         <option name="doNotUseTestRunner" value="false" />
-        <option name="trackFilePattern" value="migrations" />
+        <option name="trackFilePattern" value="" />
       </configuration>
     </facet>
   </component>
@@ -18,19 +18,10 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/project2" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.14 (Project2_PhucPD207698)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.14 (DjangoTest)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-  </component>
-  <component name="PyDocumentationSettings">
-    <option name="format" value="PLAIN" />
-    <option name="myDocStringFormat" value="Plain" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
-    <option name="TEMPLATE_FOLDERS">
-      <list>
-        <option value="$MODULE_DIR$/quanlydoan/frontend/templates" />
-      </list>
-    </option>
   </component>
 </module>

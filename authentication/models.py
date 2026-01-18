@@ -25,7 +25,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin, Auditable):
 
 # TODO: Add foreign key for class
 # TODO: Add enum for major
-class Sinhvien(Auditable):
+class Students(Auditable):
     student_code = models.CharField(primary_key=True, max_length=8)
     full_name = models.CharField( max_length=40, blank=True, null=True)
     phone = models.CharField( max_length=10, blank=True, null=True)

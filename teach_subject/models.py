@@ -24,7 +24,7 @@ class Subjects(Auditable):
         default=uuid.uuid4,
         editable=False
     )
-    tenmon = models.CharField(max_length=20, blank=True, null=True)
+    name = models.CharField(max_length=20, blank=True, null=True)
 
 class TeacherSubjects(Auditable):
     id = models.UUIDField(
@@ -32,8 +32,8 @@ class TeacherSubjects(Auditable):
         default=uuid.uuid4,
         editable=False
     )
-    mamon = models.ForeignKey(Subjects, models.DO_NOTHING, blank=True, null=True)
-    magv = models.ForeignKey(Teachers, models.DO_NOTHING, blank=True, null=True)
+    subject_id = models.ForeignKey(Subjects, models.DO_NOTHING, blank=True, null=True)
+    teacher_id = models.ForeignKey(Teachers, models.DO_NOTHING, blank=True, null=True)
 
 
 # Enum
