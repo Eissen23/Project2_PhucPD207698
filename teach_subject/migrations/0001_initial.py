@@ -11,21 +11,19 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('group', '0001_initial'),
+        ('authentication', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Meetings',
+            name='Subjects',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('created_at', models.DateTimeField(auto_now_add=True, help_text='Timestamp when the record was created')),
                 ('updated_at', models.DateTimeField(auto_now=True, help_text='Timestamp when the record was last updated')),
-                ('schedule_date', models.DateTimeField(blank=True, null=True)),
-                ('note', models.CharField(blank=True, max_length=254, null=True)),
+                ('name', models.CharField(blank=True, max_length=20, null=True)),
                 ('created_by', models.ForeignKey(blank=True, editable=False, help_text='User who created this record', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(app_label)s_%(class)s_created', to=settings.AUTH_USER_MODEL)),
-                ('group_id', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='group.studentgroups')),
                 ('updated_by', models.ForeignKey(blank=True, editable=False, help_text='User who last updated this record', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(app_label)s_%(class)s_updated', to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -34,15 +32,14 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='Reports',
+            name='TeacherSubjects',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('created_at', models.DateTimeField(auto_now_add=True, help_text='Timestamp when the record was created')),
                 ('updated_at', models.DateTimeField(auto_now=True, help_text='Timestamp when the record was last updated')),
-                ('cloud_url', models.CharField(blank=True, max_length=100, null=True)),
-                ('report', models.TextField(blank=True, null=True)),
                 ('created_by', models.ForeignKey(blank=True, editable=False, help_text='User who created this record', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(app_label)s_%(class)s_created', to=settings.AUTH_USER_MODEL)),
-                ('meeting_id', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='meetings.meetings')),
+                ('subject_id', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='teach_subject.subjects')),
+                ('teacher_id', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='authentication.teachers')),
                 ('updated_by', models.ForeignKey(blank=True, editable=False, help_text='User who last updated this record', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(app_label)s_%(class)s_updated', to=settings.AUTH_USER_MODEL)),
             ],
             options={

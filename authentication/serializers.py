@@ -1,6 +1,5 @@
 
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
 
 from authentication.models import Students, UserAccount
 from teach_subject.models import Teachers
