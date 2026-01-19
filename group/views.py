@@ -1,7 +1,6 @@
-from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import status, serializers
 import traceback
 
 from authentication.models import Students
@@ -13,11 +12,12 @@ from teach_subject.serializers import TeacherSubjectSerializer
 
 
 # Create your views here.
-class ManageProjectGroup(APIView):
+class GroupMembersView(APIView):
     serializer_class = GroupMembersSerializer
 
     def post(self, request):
         try:
+
             user = request.user
 
             if not user.is_teacher:
@@ -26,14 +26,22 @@ class ManageProjectGroup(APIView):
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
 
-                term = serializer.data.get('term')
-                group_name = serializer.data.get('group_name')
-                teacher_id = serializer.data.get('teacher_id')
+                student_id = serializer.data.get('student_id')
+                student = Students.objects.get(id=student_id)
 
-                student_group = StudentGroups(term=term, group_name=group_name, lead_teacher=teacher_id)
-                student_group.save()
+                if student is None:
+                    raise serializers.ValidationError({'error': 'Student not found'})
 
-                return ApiResponse.success(data = self.serializer_class(student_group).data, message="Successfully added student group")
+                student_group_id = serializer.data.get('group_id')
+                group = StudentGroups.objects.get(id=student_group_id)
+
+                if group is None:
+                    raise serializers.ValidationError({'error': 'Student group not found'})
+
+                group_member = GroupMembers(student_id=student_id, group_id=student_group_id)
+                group_member.save()
+
+                return ApiResponse.success(GroupMembersSerializer(group_member).data)
 
             return Response({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -82,6 +90,36 @@ class ManageProjectGroup(APIView):
                         ).data)
 
                     return Response({'student_groups': project_group}, status=status.HTTP_200_OK)
+
+        except Exception:
+            traceback.print_exc()
+            return Response({'error': 'Some exeption happened'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class StudentGroupsView(APIView):
+    serializer_class = StudentGroupsSerializer
+
+    def post(self, request):
+        try:
+            user = request.user
+
+            if not user.is_teacher:
+                return Response({'error': 'User does not have necessary permission'}, status=status.HTTP_403_FORBIDDEN)
+
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                term = serializer.data.get('term')
+                group_name = serializer.data.get('group_name')
+                teacher_id = serializer.data.get('teacher_id')
+
+                student_group = StudentGroups(term=term, group_name=group_name, lead_teacher=teacher_id)
+                student_group.save()
+
+                return ApiResponse.success(data=self.serializer_class(student_group).data,
+                                           message="Successfully added student group")
+
+            return Response({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception:
             traceback.print_exc()

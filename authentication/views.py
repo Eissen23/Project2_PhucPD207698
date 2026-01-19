@@ -3,8 +3,9 @@ from django.forms import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions, status
-from .models import Giangvien, Sinhvien
-from authentication.serializers import SignupSerializer, UserSerializer, GiangvienSerializer, SinhvienSerializer
+
+from authentication.models import Students, Teachers
+from authentication.serializers import SignupSerializer, UserSerializer, TeacherSerializer, StudentSerializer
 from django.contrib.auth import get_user_model
 User = get_user_model()
 # Create your views here.
@@ -63,12 +64,12 @@ class RetrieveUserView(APIView):
             user_id = user.data['id']
             
             if not user.data['is_teacher']:
-                user_detail = Sinhvien.objects.get(user_id = user_id) 
-                detail = SinhvienSerializer(user_detail)
+                user_detail = Students.objects.get(user_id = user_id)
+                detail = StudentSerializer(user_detail)
                 
             else:
-                user_detail = Giangvien.objects.get(user_id = user_id)
-                detail = GiangvienSerializer(user_detail)
+                user_detail = Teachers.objects.get(user_id = user_id)
+                detail = TeacherSerializer(user_detail)
             
             return Response(
                 {

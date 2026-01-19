@@ -1,7 +1,7 @@
 from django.urls import path
 
-from group.views import ManageProjectGroup
+from group.views import GroupMembersView
 
 urlpatterns = [
-    path('', ManageProjectGroup.as_view()),
+    path('', GroupMembersView.as_view()),
 ]

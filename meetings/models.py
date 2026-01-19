@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 from group.models import StudentGroups
@@ -11,7 +13,11 @@ class Meetings(models.Model):
     note = models.CharField(max_length=254, blank=True, null=True)
 
 class Reports(models.Model):
-    report_id = models.CharField(primary_key=True, max_length=10)
-    code_url = models.CharField(max_length=100, blank=True, null=True) 
-    report = models.CharField(max_length=100, blank=True, null=True) 
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    cloud_url = models.CharField(max_length=100, blank=True, null=True)
+    report = models.TextField(blank=True, null=True)
     meeting_id = models.ForeignKey(Meetings, models.CASCADE, blank=True, null=True)

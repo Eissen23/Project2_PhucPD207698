@@ -1,95 +1,98 @@
 import traceback
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from meetings.serializers import CuocHopSerializer, ReportSerializer
-from quanlydoan.api.models import Nhom
-from quanlydoan.api.utilities import id_generator
-from .models import Cuochop, Report
+from rest_framework import status, serializers
+
+from common.responses import ApiResponse
+from group.models import StudentGroups
+from meetings.models import Meetings, Reports
+from meetings.serializers import ReportSerializer, MeetingSerializer
 
 
 # Create your views here.
-class CreateMeeting(APIView):
-    serializer_class = CuocHopSerializer
+class MeetingsView(APIView):
+    serializer_class = MeetingSerializer
     
     def post(self, request):
         try: 
             user= request.user
             if not user.is_teacher:
-                return Response({'error': 'User does not have necessary permission' }, status=status.HTTP_403_FORBIDDEN)
-            
+                return ApiResponse.error('Only student are allowed', status_code=status.HTTP_403_FORBIDDEN)
+
             serializer = self.serializer_class(data = request.data)
             if serializer.is_valid():
-                while True:
-                    id = id_generator(size=10)
-                    if (Cuochop.objects.filter(id = id).count() == 0):
-                        break
-                    
-                idnhom = serializer.data.get('idnhom')
-                idnhom = Nhom.objects.get(idnhom = idnhom)
-                
-                meettime = serializer.data.get('meettime')
-                isreported = serializer.data.get('isreported')
-                ghichu = serializer.data.get('ghichu')
 
-                cuochop = Cuochop(id = id, idnhom = idnhom, meettime = meettime, isreported = isreported, isscheduled = True, ghichu = ghichu)
-                cuochop.save()
+                group_id = serializer.data.get('group_id')
+                group = StudentGroups.objects.get(id = group_id)
+
+                if group is None:
+                    raise serializers.ValidationError({'error': 'Group not found'})
                 
-                if isreported:
-                    while True:
-                        reportid= id_generator(size=10)
-                        if(Report.objects.filter(reportid = reportid).count() == 0):
-                            break
-                        
-                    report = Report(reportid = reportid, codeurl= "", report = "", cuochop = cuochop)
-                    report.save()
-                
-                return Response(CuocHopSerializer(cuochop).data, status=status.HTTP_201_CREATED)
-            
-            return Response({'error': serializer.errors}, status= status.HTTP_400_BAD_REQUEST)
+                schedule_date = serializer.data.get('schedule_date')
+                note = serializer.data.get('note_id')
+
+                meeting = Meetings(id = id, group_id= group_id, schedule_date = schedule_date, note = note)
+                meeting.save()
+
+                return ApiResponse.success(self.serializer_class(meeting).data)
             
         except Exception:
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'error': serializer.errors}, status= status.HTTP_400_BAD_REQUEST)
         
     def get(self, request, format = None):
        try:
             
             data = request.data 
-            idnhom = data['idnhom']
+
+            group = StudentGroups.objects.get(id = data['group_id'])
+            if group is None:
+                raise serializers.ValidationError({'error': 'Group not found'})
+
+            meetings = self.serializer_class(Meetings.objects.filter(group_id = group.id), many=True)
+            meetings.is_valid()
             
-            nhom = Nhom.objects.get(idnhom = idnhom)
-            meeting = Cuochop.objects.filter(idnhom = nhom.idnhom)
-            meeting = CuocHopSerializer(data = meeting, many = True)
-            meeting.is_valid()
-            
-            return Response({'last_meeting': meeting.data},status= status.HTTP_200_OK)
+            return ApiResponse.success(meetings.data)
        except Exception:
             traceback.print_exc()
             return Response({'error': "something wrong"}, status= status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-class ManageReport(APIView):
+
+
+class ReportsView(APIView):
+
+    serializer_class = ReportSerializer
+
     def put(self, request):
         try:
             user = request.user
             if user.is_teacher: 
-                return Response({'error':'Only student are allowed'}, status=status.HTTP_403_FORBIDDEN)
+               return ApiResponse.error('Only student are allowed', status_code=status.HTTP_403_FORBIDDEN)
             
             data = request.data
             
-            meeting_id = data['id']
-            meeting = Cuochop.objects.get(id = meeting_id)
-            
-            codeurl = data['codeurl']
-            report = data['report']
-            
-            baocao = Report.objects.filter(cuochop = meeting)
+            meeting = Meetings.objects.get(id = data['meeting_id'])
+            if meeting is None:
+                raise serializers.ValidationError({'error': 'Meeting not found'})
 
-            baocao.update(reportid = baocao.id,codeurl = codeurl, report = report, cuochop=meeting)
+            update_report = Reports.objects.get(id = data['id'])
+            if update_report is None:
+                raise serializers.ValidationError({'error': 'Report not found'})
 
-            return Response(
-                {'success': 'Listing updated successfully'},
-                status=status.HTTP_200_OK
+            update_report.cloud_url = data['codeurl']
+            update_report.report = data['report']
+            update_report.meeting_id = data['meeting_id']
+
+            update_report.save(update_fields=[
+                "cloud_url",
+                "report",
+                "meeting_id",
+            ])
+
+            return ApiResponse.success(
+                message='Listing updated successfully',
+                status_code=status.HTTP_200_OK
             )
             
         except Exception: 
@@ -101,18 +104,18 @@ class ManageReport(APIView):
         try:
             user = request.user
             if not user.is_teacher:
-                return Response({'error':'Only student are allowed'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'error':'Only Teacher are allowed'}, status=status.HTTP_403_FORBIDDEN)
             
             data = request.data
             meeting_id = data['cuochop']
-            meeting = Cuochop.objects.get(id = meeting_id)
+            meeting = Meetings.objects.get(id = meeting_id)
             
             
-            report = Report.objects.filter(cuochop = meeting)
-            report = ReportSerializer(data = report)
+            report = Reports.objects.filter(cuochop = meeting)
+            report = self.serializer_class(data = report)
             report.is_valid()
             
-            return Response({'data': report.data}, status=status.HTTP_200_OK)
+            return ApiResponse.success(report.data, "Listing report successfully")
             
         except Exception:
             traceback.print_exc()

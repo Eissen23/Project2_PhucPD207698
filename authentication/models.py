@@ -2,10 +2,11 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-
+from authentication.enum import TeacherStatus
 from common.models import Auditable
-# Create your models here.
+
 # TODO: There will be problem in the future with save and update method
+
 class UserAccount(AbstractBaseUser, PermissionsMixin, Auditable):
     id = models.UUIDField(
         primary_key=True,
@@ -27,6 +28,16 @@ class UserAccount(AbstractBaseUser, PermissionsMixin, Auditable):
 # TODO: Add enum for major
 class Students(Auditable):
     student_code = models.CharField(primary_key=True, max_length=8)
-    full_name = models.CharField( max_length=40, blank=True, null=True)
     phone = models.CharField( max_length=10, blank=True, null=True)
+    user_id = models.ForeignKey(UserAccount, models.CASCADE)
+
+class Teachers(Auditable):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    institute = models.CharField(max_length=100, blank=True, null=True)
+    joined_since = models.DateTimeField(blank=True, null=True)
+    status = models.CharField(max_length=3, blank=True, null=True, choices=TeacherStatus, default=TeacherStatus.ACTIVE)
     user_id = models.ForeignKey(UserAccount, models.CASCADE)

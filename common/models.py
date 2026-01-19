@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.db import models
 
@@ -7,6 +9,12 @@ class Auditable(models.Model):
     Abstract base class that provides audit fields for tracking
     creation and modification of model instances.
     """
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False,

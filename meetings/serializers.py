@@ -1,15 +1,15 @@
 from rest_framework import serializers
 
-from meetings.models import Cuochop, Report
+from meetings.models import Meetings, Reports
 
 
-class CuocHopSerializer(serializers.ModelSerializer):
+class MeetingSerializer(serializers.ModelSerializer):
     class Meta: 
-        model = Cuochop
-        fields = ('idnhom', 'meettime', 'isreported','ghichu', )
+        model = Meetings
+        fields = ('id', 'schedule_date', 'group_id','note', )
         
         
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Report
-        fields = ('codeurl','report', 'cuochop',)
+        model = Reports
+        fields = ('id', 'cloud_url', 'report', 'meeting_id',)

@@ -2,13 +2,13 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from quanlydoan.authentication.models import Giangvien, Sinhvien
-User = get_user_model()
+from authentication.models import Students, UserAccount
+from teach_subject.models import Teachers
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = UserAccount
         fields = ('id','fullName', 'email', 'is_teacher', )
 
 
@@ -24,12 +24,12 @@ class SignupSerializer(serializers.Serializer):
             raise serializers.ValidationError({'re_password': 'Passwords do not match'})
         return data
 
-class SinhvienSerializer (serializers.ModelSerializer):
+class StudentSerializer (serializers.ModelSerializer):
     class Meta:
-        model = Sinhvien
-        fields = ('masv', 'hoten', 'malop', 'sdt','nganh', ) 
+        model = Students
+        fields = ('id', 'phone', 'user_id' )
         
-class GiangvienSerializer (serializers.ModelSerializer):
+class TeacherSerializer (serializers.ModelSerializer):
     class Meta: 
-        model = Giangvien
-        fields = ('magv', 'hotengb', 'vien', 'email',  )
+        model = Teachers
+        fields = ('id', 'institute', 'joined_since', 'status', 'user_id')
