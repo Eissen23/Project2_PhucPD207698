@@ -24,6 +24,7 @@ urlpatterns = [
     # Api path for verified only
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('teacher_subjects/', include('teach_subject.urls')),
-    path('meetings', include('meetings.urls'))
+    path('meetings', include('meetings.urls')),
+    path('groups', include('group.urls')),
 ]
 
