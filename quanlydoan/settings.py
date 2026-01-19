@@ -42,10 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'dj_rest_auth',
     'rest_framework.authtoken',
     'authentication.apps.AuthenticationConfig',
     'meetings.apps.MeetingsConfig',
-    'dj_rest_auth',
     'group.apps.GroupConfig',
     'teach_subject.apps.TeachSubjectConfig',
 
@@ -128,6 +128,7 @@ REST_FRAMEWORK = {
 }
 
 REST_AUTH = {
+    'LOGIN_SERIALIZER': 'common.serializers.LoginSerializer',
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'my-app-auth',
     'JWT_AUTH_REFRESH_COOKIE': 'my-refresh-token',

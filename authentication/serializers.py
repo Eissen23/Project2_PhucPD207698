@@ -23,12 +23,14 @@ class SignupSerializer(serializers.Serializer):
             raise serializers.ValidationError({'re_password': 'Passwords do not match'})
         return data
 
+
 class StudentSerializer (serializers.ModelSerializer):
     class Meta:
         model = Students
         fields = ('id', 'phone', 'user_id' )
-        
+
 class TeacherSerializer (serializers.ModelSerializer):
-    class Meta: 
+    class Meta:
         model = Teachers
         fields = ('id', 'institute', 'joined_since', 'status', 'user_id')
+

@@ -4,26 +4,30 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions, status
 
-from authentication.models import Students, Teachers
+from authentication.models import Students, Teachers, UserAccount
 from authentication.serializers import SignupSerializer, UserSerializer, TeacherSerializer, StudentSerializer
 from django.contrib.auth import get_user_model
+
+from common.responses import ApiResponse
+
 User = get_user_model()
 # Create your views here.
 
 class SignupView(APIView):
     permission_classes = (permissions.AllowAny,)
+    serializer_class = SignupSerializer
 
     def post(self, request):
-        serializer = SignupSerializer(data=request.data)
-        
-        if not serializer.is_valid():
-            return Response(
-                {'errors': serializer.errors},
-                status=status.HTTP_400_BAD_REQUEST
+        serialized = self.serializer_class(data=request.data)
+
+        if not serialized.is_valid():
+            return ApiResponse.error(
+                serialized.errors,
+                status_code=status.HTTP_400_BAD_REQUEST
             )
 
         try:
-            validated_data = serializer.validated_data
+            validated_data = serialized.validated_data
             email = validated_data['email'].lower()
             full_name = validated_data['full_name']
             password = validated_data['password']
@@ -35,24 +39,24 @@ class SignupView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            user = self.create_user(full_name, email, password, is_teacher)
+            user = UserAccount(fullName=full_name, email=email, password=password, is_teacher=is_teacher)
             self.insert_user_data(validated_data, user, is_teacher)
 
             user_type = "Teacher" if is_teacher else "User"
-            return Response(
-                {"success": f"{user_type} successfully created"},
-                status=status.HTTP_201_CREATED
+            return ApiResponse.success(
+                message="{user_type} successfully created",
+                status_code=status.HTTP_201_CREATED
             )
 
         except ValidationError as e:
-            return Response(
+            return ApiResponse.error(
                 {'error': str(e)},
-                status=status.HTTP_400_BAD_REQUEST
+                status_code=status.HTTP_400_BAD_REQUEST
             )
-        except Exception:
-            return Response(
-                {'error': 'Something went wrong'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        except RuntimeError as e:
+            return ApiResponse.error(
+                'Something went wrong',
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
             
      
