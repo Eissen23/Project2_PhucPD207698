@@ -27,24 +27,23 @@ class SignupView(APIView):
             )
 
         try:
-            validated_data = serialized.validated_data
+            validated_data = serialized.validated_data()
             email = validated_data['email'].lower()
             full_name = validated_data['full_name']
             password = validated_data['password']
             is_teacher = validated_data['is_teacher']
 
             if User.objects.filter(email=email).exists():
-                return Response(
-                    {'error': 'Email already exists'},
-                    status=status.HTTP_400_BAD_REQUEST
+                return ApiResponse.error(
+                    'Email already exists',
+                    status_code=status.HTTP_400_BAD_REQUEST
                 )
 
             user = UserAccount(fullName=full_name, email=email, password=password, is_teacher=is_teacher)
-            self.insert_user_data(validated_data, user, is_teacher)
+            user.save()
 
-            user_type = "Teacher" if is_teacher else "User"
             return ApiResponse.success(
-                message="{user_type} successfully created",
+                message="User successfully created",
                 status_code=status.HTTP_201_CREATED
             )
 
@@ -61,20 +60,23 @@ class SignupView(APIView):
             
      
 class RetrieveUserView(APIView):
+    serializer_class = UserSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
     def get(self, request, format=None):
         try:
             user = request.user
-            user = UserSerializer(user)
+            user = self.serializer_class(user)
             user_id = user.data['id']
             
             if not user.data['is_teacher']:
-                user_detail = Students.objects.get(user_id = user_id)
+                user_detail = Students.objects.get(user_account_id = user_id)
                 detail = StudentSerializer(user_detail)
                 
             else:
-                user_detail = Teachers.objects.get(user_id = user_id)
+                user_detail = Teachers.objects.get(user_account_id = user_id)
                 detail = TeacherSerializer(user_detail)
-            
+
             return Response(
                 {
                     'user': user.data,
@@ -82,8 +84,14 @@ class RetrieveUserView(APIView):
                 },
                 status=status.HTTP_200_OK
             )
-            
-        except Exception:
+
+        except ValidationError as e:
+            return ApiResponse.error(
+                message= e.message,
+                status_code = status.HTTP_400_BAD_REQUEST
+            )
+
+        except RuntimeError:
             traceback.print_exc()
             return Response(
                 {'error': 'Something went wrong'},

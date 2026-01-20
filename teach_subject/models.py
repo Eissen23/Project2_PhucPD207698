@@ -8,6 +8,6 @@ class Subjects(Auditable):
     name = models.CharField(max_length=20, blank=True, null=True)
 
 class TeacherSubjects(Auditable):
-    subject_id = models.ForeignKey(Subjects, models.DO_NOTHING, blank=True, null=True)
-    teacher_id = models.ForeignKey(Teachers, models.DO_NOTHING, blank=True, null=True)
+    subject = models.ForeignKey(Subjects, models.DO_NOTHING, blank=True, null=True)
+    teacher = models.ForeignKey(Teachers, models.DO_NOTHING, blank=True, null=True)
 # Enum

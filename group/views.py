@@ -45,55 +45,11 @@ class GroupMembersView(APIView):
 
             return Response({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
-        except Exception:
+        except RuntimeError:
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    # get the list of project group for each the student and teacher
-    def get(self, request, format=None):
-        try:
-            user = request.user
 
-            group_id = request.query_params.get('group_id')
-            project_group = []
-
-            # for the teacher side
-            if user.is_teacher:
-                teacher_id =  Teachers.objects.get(user_id=user.id).id
-
-                if group_id is None:
-
-                    teacher_subject = TeacherSubjectSerializer(
-                        data=TeacherSubjects.objects.order_by('subject_id').filter(teacher_id=teacher_id),
-                        many=True
-                    )
-
-                    teacher_subject.is_valid()
-                    for subject in teacher_subject.data:
-                        student_group = StudentGroups.objects.get(lead_teacher=subject.get('lead_teacher'))
-                        project_group.append(StudentGroupsSerializer(student_group).data)
-
-                    return Response({'student_groups': project_group}, status=status.HTTP_200_OK)
-
-            else:
-                student_id = Students.objects.get(user_id=user.id).id
-
-                if not group_id:
-                    group_member = GroupMembers.objects.filter(student_id=student_id)
-                    group_member = GroupMembersSerializer(data=group_member, many=True)
-
-                    group_member.is_valid()
-                    for group in group_member.data:
-                        project_group.append(StudentGroupsSerializer(
-                            StudentGroups.objects.get(
-                                id=group.get('group_id'))
-                        ).data)
-
-                    return Response({'student_groups': project_group}, status=status.HTTP_200_OK)
-
-        except Exception:
-            traceback.print_exc()
-            return Response({'error': 'Some exeption happened'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -121,6 +77,54 @@ class StudentGroupsView(APIView):
 
             return Response({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
-        except Exception:
+        except RuntimeError:
             traceback.print_exc()
             return Response({'error': 'Some exeption happened'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # get the list of project group for each the student and teacher
+    def get(self,
+            request,
+            format="json"):
+        try:
+            user = request.user
+
+            group_id = request.query_params.get('group_id')
+            project_group = []
+
+            # for the teacher side
+            if user.is_teacher:
+                teacher_id = Teachers.objects.get(user_id=user.id).id
+
+                if group_id is None:
+
+                    teacher_subject = TeacherSubjectSerializer(
+                        data=TeacherSubjects.objects.order_by('subject_id').filter(teacher_id=teacher_id),
+                        many=True
+                    )
+
+                    teacher_subject.is_valid()
+                    for subject in teacher_subject.data:
+                        student_group = StudentGroups.objects.get(lead_teacher=subject.get('lead_teacher'))
+                        project_group.append(self.serializer_class(student_group).data)
+
+                    return Response({'student_groups': project_group}, status=status.HTTP_200_OK)
+
+            else:
+                student_id = Students.objects.get(user_id=user.id).id
+
+                if not group_id:
+                    group_member = GroupMembers.objects.filter(student_id=student_id)
+                    group_member = GroupMembersSerializer(data=group_member, many=True)
+
+                    group_member.is_valid()
+                    for group in group_member.data:
+                        project_group.append(self.serializer_class(
+                            StudentGroups.objects.get(
+                                id=group.get('group_id'))
+                        ).data)
+
+                    return ApiResponse.success( project_group, status_code=status.HTTP_200_OK)
+
+        except RuntimeError:
+            traceback.print_exc()
+            return ApiResponse.error('Some exeption happened', status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

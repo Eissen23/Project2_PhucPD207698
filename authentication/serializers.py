@@ -27,10 +27,10 @@ class SignupSerializer(serializers.Serializer):
 class StudentSerializer (serializers.ModelSerializer):
     class Meta:
         model = Students
-        fields = ('id', 'phone', 'user_id' )
+        fields = ('id', 'phone', 'user_account' )
 
 class TeacherSerializer (serializers.ModelSerializer):
     class Meta:
         model = Teachers
-        fields = ('id', 'institute', 'joined_since', 'status', 'user_id')
+        fields = ('id', 'institute', 'joined_since', 'status', 'user_account')
 
