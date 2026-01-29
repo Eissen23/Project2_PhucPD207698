@@ -84,7 +84,7 @@ class StudentGroupsView(APIView):
     # get the list of project group for each the student and teacher
     def get(self,
             request,
-            format="json"):
+            format=None):
         try:
             user = request.user
 

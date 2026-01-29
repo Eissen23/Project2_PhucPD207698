@@ -66,3 +66,4 @@ class Auditable(models.Model):
         # super() will call the next class in MRO (Method Resolution Order)
         # This ensures compatibility with AbstractBaseUser and other mixins
         super().save(*args, **kwargs)
+

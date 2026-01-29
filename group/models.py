@@ -8,6 +8,8 @@ from common.models import Auditable
 from group.enums import StudentGroupStatus
 from teach_subject.models import TeacherSubjects
 
+def get_default_tags():
+    return ["Basic projects"]
 
 # Can also be named as Project.
 class StudentGroups(Auditable):
@@ -15,7 +17,7 @@ class StudentGroups(Auditable):
     description = models.TextField( blank=True, null=True)
     term = models.PositiveIntegerField(help_text="The term in which the project started")
     status = models.CharField( max_length=10, choices=StudentGroupStatus, default= StudentGroupStatus.ACTIVE, null=True)
-    tags = ArrayField(models.CharField(max_length=100), help_text="Tags of group projects type")
+    tags = ArrayField(models.CharField(max_length=100), help_text="Tags of group projects type", default=get_default_tags)
     # Foreign key
     teacher_subject = models.ForeignKey(TeacherSubjects, models.DO_NOTHING, blank=True, null=True)
 

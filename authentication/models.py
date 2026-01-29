@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from authentication.enum import TeacherStatus
+from authentication.managers import UserAccountManager
 from common.models import Auditable
 
 class StudentClasses(Auditable):
@@ -14,7 +15,8 @@ class UserAccount(AbstractBaseUser, PermissionsMixin, Auditable):
     fullName = models.CharField(max_length=254)
     is_active = models.BooleanField(default= True)
     is_teacher = models.BooleanField(default=False)
-    avatar = models.ImageField(upload_to='avatars/%Y/%m', blank=True, null=True)
+
+    objects = UserAccountManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['fullName']
@@ -26,7 +28,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin, Auditable):
 class Students(Auditable):
     phone = models.CharField( max_length=10, blank=True, null=True)
     user_account = models.ForeignKey(UserAccount, models.CASCADE)
-    student_class = models.ForeignKey(StudentClasses, models.CASCADE)
+    student_class = models.ForeignKey(StudentClasses, models.CASCADE, null=True)
 
 class Teachers(Auditable):
     institute = models.CharField(max_length=100, blank=True, null=True)
