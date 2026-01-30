@@ -59,6 +59,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    #Custom middle ware
+    'common.middlewares.CurrentUserMiddleware',
 ]
 
 ROOT_URLCONF = 'quanlydoan.urls'
@@ -128,11 +131,18 @@ REST_FRAMEWORK = {
     ),
 }
 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(weeks=1),
+}
+
 REST_AUTH = {
     'LOGIN_SERIALIZER': 'authentication.serializers.AuthenticateSerializer',
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'my-app-auth',
     'JWT_AUTH_REFRESH_COOKIE': 'my-refresh-token',
+    'JWT_AUTH_RETURN_EXPIRATION': True,
+    "JWT_AUTH_HTTPONLY" : False,
 }
 
 # email set up for django

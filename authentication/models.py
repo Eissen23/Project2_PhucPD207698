@@ -12,14 +12,14 @@ class StudentClasses(Auditable):
 
 class UserAccount(AbstractBaseUser, PermissionsMixin, Auditable):
     email = models.EmailField( max_length=254, unique= True )
-    fullName = models.CharField(max_length=254)
+    full_name = models.CharField(max_length=254)
     is_active = models.BooleanField(default= True)
     is_teacher = models.BooleanField(default=False)
 
     objects = UserAccountManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['fullName']
+    REQUIRED_FIELDS = ['full_name']
 
     def __str__(self):
         return self.email

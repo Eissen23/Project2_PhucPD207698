@@ -3,6 +3,9 @@ import uuid
 from django.conf import settings
 from django.db import models
 
+from common.threadlocals import get_current_user
+
+
 # Create your models here.
 class Auditable(models.Model):
     """
@@ -56,11 +59,12 @@ class Auditable(models.Model):
         Override save to handle user tracking.
         Pass 'current_user' in kwargs to set created_by/updated_by.
         """
-        current_user = kwargs.pop('current_user', None)
+        current_user = get_current_user()
 
         if current_user and current_user.is_authenticated:
-            if not self.pk:  # New instance
+            if self._state.adding:  # New instance
                 self.created_by = current_user
+
             self.updated_by = current_user
 
         # super() will call the next class in MRO (Method Resolution Order)
