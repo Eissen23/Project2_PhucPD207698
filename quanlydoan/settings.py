@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'dj_rest_auth',
     'rest_framework.authtoken',
+    'drf_spectacular',
     'authentication.apps.AuthenticationConfig',
     'meetings.apps.MeetingsConfig',
     'group.apps.GroupConfig',
@@ -129,8 +130,10 @@ REST_FRAMEWORK = {
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication'
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+# For token, authentication
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(weeks=1),
@@ -144,6 +147,16 @@ REST_AUTH = {
     'JWT_AUTH_RETURN_EXPIRATION': True,
     "JWT_AUTH_HTTPONLY" : False,
 }
+
+# OpenAPI config
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Quan ly dao tao API',
+    'DESCRIPTION': 'API cho quản lý đào tạo (project, quản lý đồ án)',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
+
 
 # email set up for django
 # USING SMTP PROTOCOL FOR AUTHENTICATION
