@@ -1,137 +1,67 @@
-# Project2_PhucPD207698 Setup Django - React project
+# Hướng dẫn cài đặt (dành cho người clone dự án)
 
-### 1. Đi tới thư mục muốn sử dụng 
-Sử dụng câu lệnh tạo môi trường ảo
-		```py -m venv <tên mt ảo>```
-Với các dependencies như sau:
-Nó sẽ tạo ra mội thư mục chứa môi trường ào 
-### 2. Kích hoạt môi trường ảo
-- ==lưu ý== : đới với người dùng Window 11 thì cần phải set up thêm bước này
-	- Khởi chạy terminal mặc định (powershell) sử dụng oftion "Run as administrator"
-	- Chèn câu lệnh ```Set-ExecutionPolicy RemoteSigned```
-Sau đó chạy file .ps1 để kích hoạt
-		```<tên máy ảo>\Scripts\Activate.ps1```
-### 3. Cài Django vào môi trường ảo
-  ```py -m pip install Django```
-### 4. Cài interpreter cho python project
+## Yêu cầu môi trường
 
+- Python 3.10+ (khuyến nghị 3.11)
+- PostgreSQL 13+ (hoặc tương đương)
+- Pip và virtualenv
 
-# Cho React
-### 1. Tạo app riêng cho react để đảm nhận sau đó di chuyển vào app
-### 2. Tạo các folder 
-	src
-		components
-	static
-		frontend
-		css
-		images
-	tempates
-### 3. Viết ```npm init -y```
-### 4. sử dụng npm install tải các package sau cùng flag
-- webpack webpack-cli --save-dev
-- @babel/core babel-loader @babel/preset-env @babel/preset-react --save-dev
-- react react-dom --save-dev
-- npm install @material-ui/core --force
-- @babel/plugin-proposal-class-properties --force
-- npm install react-router-dom --legacy-peer-deps
-- npm install @material-ui/icons --legacy-peer-deps
-### 5. Babel.config.json
-Trong frontend app tạo thư mục trên
-Copy code này vào
+## Cài đặt nhanh
 
-````babel.config.json
-{
-  "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "targets": {
-          "node": "10"
-        }
-      }
-    ],
-    "@babel/preset-react"
-  ],
-  "plugins": ["@babel/plugin-proposal-class-properties"]
-}
-````
+1. Tạo và kích hoạt môi trường ảo
 
-### 6. webpack.config.js
-Trong folder frontend
-```webpack
-const path = require("path");
-const webpack = require("webpack");
+- Windows (PowerShell):
 
-module.exports = {
-  entry: "./src/index.js",
-  output: {
-    path: path.resolve(__dirname, "./static/frontend"),
-    filename: "[name].js",
-  },
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-        },
-      },
-    ],
-  },
-  optimization: {
-    minimize: true,
-  },
-  plugins: [
-    new webpack.DefinePlugin({
-      "process.env": {
-        // This has effect on the react lib size
-        NODE_ENV: JSON.stringify("production"),
-      },
-    }),
-  ],
-};
-```
+  python -m venv .venv
+  .venv\Scripts\Activate.ps1
 
-### 7. Trong package.json 
-```package
-"scripts":{
-	"dev": "webpack --mode development --watch",
-	"build": "webpach --mode production"
-}
-```
+2. Cài đặt thư viện
 
-# React integration
+   pip install -r requirement.txt
 
-# Routing system
-Trong file js của homepage sử dụng thư viện react-router-dom
-```
-import {BrowserRouter as Router, Switch, Route, Link, Redirect} from "react-router-dom"
-```
-Ở phần  render>return statement:
-```
-return (
-	<Router>
-		<Switch>
-			<Route exact path='/' ><p>Blah blah homepage</p></Route>
-			<Route path='/another' component= {AnotherComponent}><p>Blah blah another</p></Route>
-		</Switch>
-	</Router>
-)
-```
-__Lưu ý__: 
-	- sau mỗi lần thêm path vào React thì sẽ cần phải thêm path vào Django tương ứng
-	- Route của react sẽ đọc các Route component từ trên xuống theo path và cần phải cẩn thận ở đó. Vì router của react chỉ chọn routing cái nó đọc đc đầu tiên: giả sử không có exact trong code trên, nếu ta theo đường dẫn '/another' thì cho dù xâu khác hoàn toàn, react vẫ sẽ render component có path = '/' vì 'another' cũng có 1 đoạn như vậy nên nó sẽ render nó. Vì thế cần phải lưu tâm và sử dụng exact nếu cần.
+3. Cấu hình PostgreSQL
 
-Ở urls.py ta thêm các đường urls vào 
+Trong [quanlydoan/settings.py](quanlydoan/settings.py), dự án đang dùng cấu hình mặc định:
 
-#### Update:
-Phần code trên chỉ có đước sử dụng cho React v5 trở về trc  nhưng giờ cần phải convert sang V6
-[reactjs - Attempted import error: 'Switch' is not exported from 'react-router-dom' - Stack Overflow](https://stackoverflow.com/questions/63124161/attempted-import-error-switch-is-not-exported-from-react-router-dom)
+- Database name: quanlydoan_pg
+- User: postgres
+- Password: DucPhuc2@
+- Host: localhost
+- Port: 5432
 
-# USED API 
-  Hust logo [hust-logo-official_.3m.jpeg (787×1184) (storage.googleapis.com)](https://storage.googleapis.com/hust-files/5807675312963584/images/hust-logo-official_.3m.jpeg)
+Bạn cần tạo database tương ứng trước khi chạy migration.
 
+4. Chạy migration
 
-  project.urls.py
-    app.urls.py
+   python manage.py migrate
+
+5. Tạo tài khoản quản trị (tuỳ chọn)
+
+   python manage.py createsuperuser
+
+6. Chạy dự án
+
+   python manage.py runserver
+
+## Ghi chú
+
+- Dự án dùng JWT qua `dj_rest_auth` và `djangorestframework_simplejwt`.
+- API schema dùng `drf-spectacular`.
+
+## Mục đích dự án
+
+Dự án tập trung vào quản lý đào tạo và theo dõi đồ án theo nhóm trong môi trường học thuật. Hệ thống định hướng phục vụ hai nhóm người dùng chính: giảng viên và sinh viên.
+
+### Phạm vi chức năng chính
+
+- **Quản lý tài khoản và hồ sơ**: đăng ký, đăng nhập, truy xuất thông tin người dùng; phân vai trò giáo viên/sinh viên.
+- **Quản lý môn học & phân công giảng viên**: thiết lập môn học và gán giảng viên phụ trách.
+- **Quản lý nhóm đồ án**: tạo nhóm đồ án, gán giảng viên/môn học, quản lý thành viên nhóm.
+- **Quản lý nhiệm vụ dự án**: theo dõi các hạng mục công việc (task), người phụ trách và tài liệu tham chiếu.
+- **Lịch họp & báo cáo**: tạo lịch họp cho nhóm và cập nhật báo cáo tiến độ sau mỗi buổi.
+
+### Mục tiêu sử dụng
+
+- Chuẩn hoá quy trình theo dõi tiến độ đồ án theo nhóm.
+- Tạo kênh tương tác giữa giảng viên và sinh viên thông qua lịch họp/báo cáo.
+- Cung cấp API phục vụ web/mobile cho việc quản lý dự án học tập.
